@@ -1,0 +1,13 @@
+{
+  "collectionName": "components_tour_spec_exclusion_items",
+  "info": {
+    "displayName": "Exclusion Item"
+  },
+  "options": {},
+  "attributes": {
+    "text": {
+      "type": "string"
+    }
+  },
+  "config": {}
+}

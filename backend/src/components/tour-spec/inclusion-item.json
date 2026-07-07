@@ -1,0 +1,13 @@
+{
+  "collectionName": "components_tour_spec_inclusion_items",
+  "info": {
+    "displayName": "Inclusion Item"
+  },
+  "options": {},
+  "attributes": {
+    "text": {
+      "type": "string"
+    }
+  },
+  "config": {}
+}

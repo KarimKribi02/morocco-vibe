@@ -1,0 +1,60 @@
+{
+  "kind": "collectionType",
+  "collectionName": "bookings",
+  "info": {
+    "singularName": "booking",
+    "pluralName": "bookings",
+    "displayName": "Booking"
+  },
+  "options": {
+    "draftAndPublish": true
+  },
+  "pluginOptions": {
+    "i18n": {
+      "localized": false
+    }
+  },
+  "attributes": {
+    "clientName": {
+      "type": "string",
+      "required": true
+    },
+    "email": {
+      "type": "email",
+      "required": true
+    },
+    "whatsApp": {
+      "type": "string",
+      "required": true
+    },
+    "nationality": {
+      "type": "string"
+    },
+    "serviceType": {
+      "type": "enumeration",
+      "enum": [
+        "Tour",
+        "Taxi",
+        "Airport Transfer"
+      ]
+    },
+    "travelDate": {
+      "type": "date"
+    },
+    "adultsCount": {
+      "type": "integer"
+    },
+    "childrenCount": {
+      "type": "integer"
+    },
+    "pickUpLocation": {
+      "type": "string"
+    },
+    "dropOffLocation": {
+      "type": "string"
+    },
+    "specialRequests": {
+      "type": "text"
+    }
+  }
+}

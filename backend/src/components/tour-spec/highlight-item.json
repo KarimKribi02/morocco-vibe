@@ -1,0 +1,13 @@
+{
+  "collectionName": "components_tour_spec_highlight_items",
+  "info": {
+    "displayName": "Highlight Item"
+  },
+  "options": {},
+  "attributes": {
+    "text": {
+      "type": "string"
+    }
+  },
+  "config": {}
+}

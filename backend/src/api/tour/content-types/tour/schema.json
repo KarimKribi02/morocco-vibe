@@ -1,0 +1,83 @@
+{
+  "kind": "collectionType",
+  "collectionName": "tours",
+  "info": {
+    "singularName": "tour",
+    "pluralName": "tours",
+    "displayName": "Tour"
+  },
+  "options": {
+    "draftAndPublish": true
+  },
+  "pluginOptions": {},
+  "attributes": {
+    "title": {
+      "type": "string",
+      "required": true
+    },
+    "slug": {
+      "type": "uid",
+      "targetField": "title"
+    },
+    "duration": {
+      "type": "integer",
+      "required": true
+    },
+    "price": {
+      "type": "decimal",
+      "required": true
+    },
+    "salePrice": {
+      "type": "decimal"
+    },
+    "mainImage": {
+      "type": "media",
+      "multiple": false,
+      "required": true,
+      "allowedTypes": [
+        "images"
+      ]
+    },
+    "gallery": {
+      "type": "media",
+      "multiple": true,
+      "allowedTypes": [
+        "images"
+      ]
+    },
+    "featured": {
+      "type": "boolean",
+      "default": false
+    },
+    "overview": {
+      "type": "blocks"
+    },
+    "highlights": {
+      "type": "component",
+      "component": "tour-spec.highlight-item",
+      "repeatable": true
+    },
+    "itinerary": {
+      "type": "component",
+      "component": "tour-spec.itinerary-day",
+      "repeatable": true
+    },
+    "whatsIncluded": {
+      "type": "component",
+      "component": "tour-spec.inclusion-item",
+      "repeatable": true
+    },
+    "whatsNotIncluded": {
+      "type": "component",
+      "component": "tour-spec.exclusion-item",
+      "repeatable": true
+    },
+    "mapImage": {
+      "type": "media",
+      "multiple": false,
+      "allowedTypes": [
+        "images"
+      ]
+    }
+  }
+}
