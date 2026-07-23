@@ -1,5 +1,6 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
+  output: 'standalone',
   images: {
     remotePatterns: [
       {
@@ -9,19 +10,38 @@ const nextConfig = {
         pathname: '/uploads/**',
       },
       {
-        protocol: 'https',
-        hostname: 'images.unsplash.com',
-        pathname: '/**',
-      },
-      // Standard production wildcards for popular hosted backend platforms
-      {
-        protocol: 'https',
-        hostname: '**.render.com',
+        protocol: 'http',
+        hostname: '127.0.0.1',
+        port: '1337',
         pathname: '/uploads/**',
       },
       {
         protocol: 'https',
-        hostname: '**.railway.app',
+        hostname: 'images.unsplash.com',
+        pathname: '/**',
+      },
+      // Production Hostinger VPS / generic IP & wildcard domain support for Strapi uploads (port 1337)
+      {
+        protocol: 'http',
+        hostname: '**',
+        port: '1337',
+        pathname: '/uploads/**',
+      },
+      {
+        protocol: 'https',
+        hostname: '**',
+        port: '1337',
+        pathname: '/uploads/**',
+      },
+      // Production Hostinger VPS / generic IP & domain support for reverse-proxied Strapi uploads
+      {
+        protocol: 'http',
+        hostname: '**',
+        pathname: '/uploads/**',
+      },
+      {
+        protocol: 'https',
+        hostname: '**',
         pathname: '/uploads/**',
       },
     ],

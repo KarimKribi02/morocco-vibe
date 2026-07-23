@@ -1,7 +1,6 @@
 "use client";
 
 import { createContext, useContext, useState, useEffect } from 'react';
-import { usePathname, useRouter } from 'next/navigation';
 
 const LanguageContext = createContext();
 
@@ -66,37 +65,24 @@ export const dictionary = {
 };
 
 export function LanguageProvider({ children }) {
-  const pathname = usePathname();
-  const router = useRouter();
+  const [currentLocale, setCurrentLocale] = useState('en');
 
-  // Detect locale from pathname (e.g. /fr/about -> fr)
-  const pathSegments = pathname ? pathname.split('/') : [];
-  const initialLocale = ['en', 'fr', 'es'].includes(pathSegments[1]) ? pathSegments[1] : 'en';
-
-  const [currentLocale, setCurrentLocale] = useState(initialLocale);
-
-  // Sync state whenever path changes
   useEffect(() => {
-    const segments = pathname ? pathname.split('/') : [];
-    const active = ['en', 'fr', 'es'].includes(segments[1]) ? segments[1] : 'en';
-    setCurrentLocale(active);
-  }, [pathname]);
+    // Optional client-side language preference retrieval from localStorage
+    if (typeof window !== 'undefined') {
+      const savedLocale = localStorage.getItem('app_locale');
+      if (savedLocale && ['en', 'fr', 'es'].includes(savedLocale)) {
+        setCurrentLocale(savedLocale);
+      }
+    }
+  }, []);
 
   const changeLanguage = (newLocale) => {
     if (!['en', 'fr', 'es'].includes(newLocale)) return;
-
-    const segments = pathname ? pathname.split('/') : [];
-    let newPathname = '';
-
-    if (['en', 'fr', 'es'].includes(segments[1])) {
-      segments[1] = newLocale;
-      newPathname = segments.join('/');
-    } else {
-      newPathname = `/${newLocale}${pathname}`;
-    }
-
     setCurrentLocale(newLocale);
-    router.push(newPathname || '/');
+    if (typeof window !== 'undefined') {
+      localStorage.setItem('app_locale', newLocale);
+    }
   };
 
   const t = (key) => {

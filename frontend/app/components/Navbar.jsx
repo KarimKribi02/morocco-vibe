@@ -12,8 +12,8 @@ export default function Navbar() {
   const { activeCurrency, changeCurrency, currencies } = useCurrency();
   const [scrolled, setScrolled] = useState(false);
 
-  // Check if we are on the homepage (accounting for locale paths)
-  const isHomepage = pathname === '/' || pathname === '/en' || pathname === '/fr' || pathname === '/es' || pathname === '/en/' || pathname === '/fr/' || pathname === '/es/';
+  // Check if we are on the homepage
+  const isHomepage = pathname === '/';
 
   useEffect(() => {
     const handleScroll = () => {

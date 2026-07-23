@@ -1,10 +1,12 @@
-const STRAPI_URL = process.env.NEXT_PUBLIC_API_URL || process.env.NEXT_PUBLIC_STRAPI_API_URL || 'http://localhost:1337';
+const rawApiUrl = process.env.NEXT_PUBLIC_API_URL || process.env.NEXT_PUBLIC_STRAPI_API_URL || 'http://localhost:1337';
+const STRAPI_URL = rawApiUrl.replace(/\/+$/, '');
 
 export async function fetchFromStrapi(endpoint, queryParams = '') {
   try {
+    const cleanEndpoint = endpoint.replace(/^\/+/, '');
     const separator = queryParams ? (queryParams.startsWith('?') ? '' : '?') : '';
-    const res = await fetch(`${STRAPI_URL}/api/${endpoint}${separator}${queryParams}`, {
-      cache: 'no-store', // Dima fresh data f l-development
+    const res = await fetch(`${STRAPI_URL}/api/${cleanEndpoint}${separator}${queryParams}`, {
+      cache: 'no-store',
     });
     
     if (!res.ok) {
@@ -22,6 +24,7 @@ export function getStrapiMedia(url) {
   if (!url) return null;
   // If the url is already absolute or is a local public asset path, return it directly
   if (url.startsWith('http') || url.startsWith('//') || url.startsWith('/assets/') || url.startsWith('/placeholder')) return url;
-  // If it's a dynamic Strapi media URL, join it with the Strapi API URL
-  return `${STRAPI_URL}${url}`;
+  // Ensure leading slash for media path
+  const mediaPath = url.startsWith('/') ? url : `/${url}`;
+  return `${STRAPI_URL}${mediaPath}`;
 }
