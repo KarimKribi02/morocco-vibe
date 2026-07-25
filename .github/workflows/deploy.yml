@@ -1,20 +1,65 @@
-name: Test SSH
+name: Deploy Morocco Vibe
 
-on: workflow_dispatch
+on:
+  push:
+    branches:
+      - main
 
 jobs:
-  test:
+  deploy:
+    name: Deploy to VPS
     runs-on: ubuntu-latest
 
     steps:
-      - uses: appleboy/ssh-action@v1.2.0
+      - name: Deploy via SSH
+        uses: appleboy/ssh-action@v1.2.0
         with:
           host: ${{ secrets.HOST }}
           username: ${{ secrets.USERNAME }}
           key: ${{ secrets.SSH_PRIVATE_KEY }}
           port: ${{ secrets.PORT }}
-          debug: true
+          script_stop: true
+
           script: |
-            whoami
-            hostname
-            pwd
+            echo "=============================="
+            echo "🚀 Morocco Vibe Deployment"
+            echo "=============================="
+
+            cd ~/morocco-vibe
+
+            echo "📥 Updating repository..."
+            git fetch origin
+            git reset --hard origin/main
+
+            ####################################
+            # Backend
+            ####################################
+            echo "📦 Installing Backend..."
+            cd backend
+
+            npm ci
+            npm run build
+
+            echo "♻️ Restart Backend..."
+            pm2 restart backend
+
+            ####################################
+            # Frontend
+            ####################################
+            echo "📦 Installing Frontend..."
+            cd ../frontend
+
+            npm ci
+            npm run build
+
+            echo "♻️ Restart Frontend..."
+            pm2 restart frontend
+
+            ####################################
+            # Save PM2
+            ####################################
+            pm2 save
+
+            echo "=============================="
+            echo "✅ Deployment Finished!"
+            echo "=============================="
