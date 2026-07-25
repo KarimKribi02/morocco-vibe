@@ -1,35 +1,20 @@
-name: Deploy Morocco Vibe
+name: Test SSH
 
-on:
-  push:
-    branches:
-      - main
+on: workflow_dispatch
 
 jobs:
-  deploy:
+  test:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Deploy to VPS
-        uses: appleboy/ssh-action@v1.2.0
+      - uses: appleboy/ssh-action@v1.2.0
         with:
           host: ${{ secrets.HOST }}
           username: ${{ secrets.USERNAME }}
           key: ${{ secrets.SSH_PRIVATE_KEY }}
           port: ${{ secrets.PORT }}
+          debug: true
           script: |
-            cd ~/morocco-vibe
-
-            git pull origin main
-
-            # Backend
-            cd backend
-            npm install
-            npm run build
-            pm2 restart backend
-
-            # Frontend
-            cd ../frontend
-            npm install
-            npm run build
-            pm2 restart frontend
+            whoami
+            hostname
+            pwd
