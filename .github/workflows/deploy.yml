@@ -7,11 +7,10 @@ on:
 
 jobs:
   deploy:
-    name: Deploy to VPS
     runs-on: ubuntu-latest
 
     steps:
-      - name: Deploy via SSH
+      - name: Deploy to VPS
         uses: appleboy/ssh-action@v1.2.0
         with:
           host: ${{ secrets.HOST }}
@@ -19,47 +18,48 @@ jobs:
           key: ${{ secrets.SSH_PRIVATE_KEY }}
           port: ${{ secrets.PORT }}
           script_stop: true
-
           script: |
+            set -e
+
             echo "=============================="
             echo "🚀 Morocco Vibe Deployment"
             echo "=============================="
 
             cd ~/morocco-vibe
 
-            echo "📥 Updating repository..."
-            git fetch origin
-            git reset --hard origin/main
+            echo "📥 Pull latest code..."
+            git pull origin main
 
-            ####################################
+            ################################
             # Backend
-            ####################################
-            echo "📦 Installing Backend..."
+            ################################
+            echo "📦 Backend"
+
             cd backend
 
             npm ci
             npm run build
 
-            echo "♻️ Restart Backend..."
             pm2 restart backend
 
-            ####################################
+            ################################
             # Frontend
-            ####################################
-            echo "📦 Installing Frontend..."
+            ################################
+            echo "📦 Frontend"
+
             cd ../frontend
 
             npm ci
             npm run build
 
-            echo "♻️ Restart Frontend..."
             pm2 restart frontend
 
-            ####################################
+            ################################
             # Save PM2
-            ####################################
+            ################################
+
             pm2 save
 
             echo "=============================="
-            echo "✅ Deployment Finished!"
+            echo "✅ Deployment Success"
             echo "=============================="
