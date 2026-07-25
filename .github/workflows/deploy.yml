@@ -21,38 +21,58 @@ jobs:
           script: |
             set -e
 
-            echo "=============================="
+            echo "=================================="
             echo "🚀 Morocco Vibe Deployment"
-            echo "=============================="
+            echo "=================================="
 
             cd ~/morocco-vibe
 
-            echo "📥 Pull latest code..."
-            git pull origin main
+            ####################################
+            # Update Repository
+            ####################################
+            echo "📥 Updating repository..."
+            git fetch origin
+            git reset --hard origin/main
 
-            ################################
+            ####################################
             # Backend
-            ################################
-            echo "📦 Backend"
+            ####################################
+            echo "📦 Building Backend..."
             cd backend
+
             npm ci
             npm run build
+
+            echo "♻️ Restart Backend..."
             pm2 restart backend
 
-            ################################
+            ####################################
             # Frontend
-            ################################
-            echo "📦 Frontend"
+            ####################################
+            echo "📦 Building Frontend..."
             cd ../frontend
+
             npm ci
             npm run build
+
+            echo "📂 Copy Standalone Assets..."
+
+            rm -rf .next/standalone/public
+            mkdir -p .next/standalone/public
+            cp -R public/. .next/standalone/public/
+
+            mkdir -p .next/standalone/.next
+            rm -rf .next/standalone/.next/static
+            cp -R .next/static .next/standalone/.next/
+
+            echo "♻️ Restart Frontend..."
             pm2 restart frontend
 
-            ################################
+            ####################################
             # Save PM2
-            ################################
+            ####################################
             pm2 save
 
-            echo "=============================="
-            echo "✅ Deployment Success"
-            echo "=============================="
+            echo "=================================="
+            echo "✅ Deployment Finished Successfully"
+            echo "=================================="
