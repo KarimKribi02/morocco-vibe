@@ -27,7 +27,7 @@ Travel Interest/Subject: ${formData.subject}
 Message: ${formData.message}`;
 
     const encodedMessage = encodeURIComponent(textPayload);
-    const whatsappUrl = `https://wa.me/212702811835?text=${encodedMessage}`;
+    const whatsappUrl = `https://wa.me/212634332000?text=${encodedMessage}`;
 
     // Attempt to open in a new tab; fallback to current window location if blocked
     const newWindow = window.open(whatsappUrl, '_blank');
@@ -131,7 +131,7 @@ Message: ${formData.message}`;
 
                 {/* WhatsApp Support */}
                 <a 
-                  href="https://wa.me/212702811835" 
+                  href="https://wa.me/212634332000" 
                   target="_blank"
                   rel="noopener noreferrer"
                   className="flex items-start space-x-4 p-3 hover:bg-slate-50 rounded-xl transition duration-300 group cursor-pointer"
@@ -141,7 +141,7 @@ Message: ${formData.message}`;
                   </div>
                   <div>
                     <h4 className="text-xs uppercase tracking-wider text-slate-400 font-bold mb-0.5">Direct Concierge Hotline</h4>
-                    <p className="text-sm font-bold text-slate-800 group-hover:text-orange-500 transition">+212 702 811 835</p>
+                    <p className="text-sm font-bold text-slate-800 group-hover:text-orange-500 transition">+212 634 33 20 00</p>
                     <p className="text-xs text-slate-500 font-light mt-0.5">Available for WhatsApp calls & messaging</p>
                   </div>
                 </a>

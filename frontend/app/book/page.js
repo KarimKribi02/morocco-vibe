@@ -38,7 +38,7 @@ Private Transport: Included (Premium Mercedes V-Class)
 Concierge Support: 24/7 Dedicated Concierge Active`;
 
     const encodedMessage = encodeURIComponent(textPayload);
-    const whatsappUrl = `https://wa.me/212702811835?text=${encodedMessage}`;
+    const whatsappUrl = `https://wa.me/212634332000?text=${encodedMessage}`;
 
     // Attempt to open in a new tab; fallback to current window location if blocked
     const newWindow = window.open(whatsappUrl, '_blank');

@@ -11,7 +11,7 @@ export default function WhatsAppButton() {
 
       {/* Primary Floating Trigger */}
       <a 
-        href="https://wa.me/212702811835?text=Hi!%20I%20am%20browsing%20your%20premium%20Morocco%20travel%20platform%20and%20would%20love%20to%20get%20more%20details%20on%20your%20luxury%20tours." 
+        href="https://wa.me/212634332000?text=Hi!%20I%20am%20browsing%20your%20premium%20Morocco%20travel%20platform%20and%20would%20love%20to%20get%20more%20details%20on%20your%20luxury%20tours." 
         target="_blank"
         rel="noopener noreferrer"
         className="relative bg-[#25D366] hover:bg-[#20ba59] text-white w-12 h-12 rounded-full shadow-2xl hover:scale-105 active:scale-95 transition-all duration-300 flex items-center justify-center group cursor-pointer"

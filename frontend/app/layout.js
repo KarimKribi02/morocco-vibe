@@ -2,6 +2,7 @@ import "./globals.css";
 import Navbar from "./components/Navbar";
 import FooterWrapper from "./components/FooterWrapper";
 import WhatsAppButton from "./components/WhatsAppButton";
+import MobileBottomNav from "./components/MobileBottomNav";
 import BrandPreloader from "./components/BrandPreloader";
 import { CurrencyProvider } from "../context/CurrencyContext";
 import { LanguageProvider } from "../context/LanguageContext";
@@ -25,6 +26,7 @@ export default function RootLayout({ children }) {
             </div>
             <FooterWrapper />
             <WhatsAppButton />
+            <MobileBottomNav />
           </CurrencyProvider>
         </LanguageProvider>
       </body>

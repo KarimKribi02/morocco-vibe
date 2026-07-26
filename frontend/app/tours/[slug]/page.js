@@ -469,7 +469,7 @@ export default function TourDetailPage({ params: paramsPromise }) {
 - Tickets: ${bookingForm.tickets}
 - Note: ${bookingForm.message}`;
 
-    const whatsappUrl = `https://wa.me/212702811835?text=${encodeURIComponent(messageText)}`;
+    const whatsappUrl = `https://wa.me/212634332000?text=${encodeURIComponent(messageText)}`;
     const newWindow = window.open(whatsappUrl, '_blank');
     if (!newWindow || newWindow.closed || typeof newWindow.closed === 'undefined') {
       window.location.href = whatsappUrl;
