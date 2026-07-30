@@ -181,8 +181,8 @@ export default function ToursPage() {
   // Filter States
   const [selectedDestination, setSelectedDestination] = useState('all');
   const [selectedDuration, setSelectedDuration] = useState('all');
+  const [selectedType, setSelectedType] = useState('all');
   const [selectedBudget, setSelectedBudget] = useState(3500);
-  const [selectedCategory, setSelectedCategory] = useState('all');
   const [sortBy, setSortBy] = useState('popular');
   const [isPrivateOnly, setIsPrivateOnly] = useState(false);
   const [favorites, setFavorites] = useState({});
@@ -238,8 +238,37 @@ export default function ToursPage() {
   // Filter & Sort Logic
   const filteredTours = useMemo(() => {
     return rawTours.filter(t => {
+      // 1. Budget filter
       if (selectedBudget < t.price) return false;
+
+      // 2. Destination filter
+      if (selectedDestination !== 'all') {
+        const destLower = selectedDestination.toLowerCase();
+        const subtitleLower = (t.subtitle || '').toLowerCase();
+        const titleLower = (t.title || '').toLowerCase();
+        if (!subtitleLower.includes(destLower) && !titleLower.includes(destLower)) {
+          return false;
+        }
+      }
+
+      // 3. Duration filter
+      if (selectedDuration !== 'all') {
+        const days = parseInt(t.duration) || 0;
+        if (selectedDuration === 'short' && (days < 1 || days > 5)) return false;
+        if (selectedDuration === 'medium' && (days < 6 || days > 8)) return false;
+        if (selectedDuration === 'long' && days < 9) return false;
+      }
+
+      // 4. Tour type filter
+      if (selectedType !== 'all') {
+        const typeLower = (t.type || '').toLowerCase();
+        if (selectedType === 'private' && !typeLower.includes('private')) return false;
+        if (selectedType === 'group' && !typeLower.includes('group')) return false;
+      }
+
+      // 5. Private only toggle
       if (isPrivateOnly && !t.type.toLowerCase().includes('private')) return false;
+
       return true;
     }).sort((a, b) => {
       if (sortBy === 'price-low') return a.price - b.price;
@@ -247,7 +276,7 @@ export default function ToursPage() {
       if (sortBy === 'rating') return Number(b.rating) - Number(a.rating);
       return 0;
     });
-  }, [rawTours, selectedBudget, isPrivateOnly, sortBy]);
+  }, [rawTours, selectedBudget, selectedDestination, selectedDuration, selectedType, isPrivateOnly, sortBy]);
 
   // Pagination calculation
   const totalPages = Math.max(1, Math.ceil(filteredTours.length / itemsPerPage));
@@ -263,8 +292,8 @@ export default function ToursPage() {
   const handleResetFilters = () => {
     setSelectedDestination('all');
     setSelectedDuration('all');
+    setSelectedType('all');
     setSelectedBudget(3500);
-    setSelectedCategory('all');
     setIsPrivateOnly(false);
     setCurrentPage(1);
   };
@@ -272,159 +301,102 @@ export default function ToursPage() {
   return (
     <div className="bg-[#FAF8F5] min-h-screen text-gray-900 font-sans pb-16 selection:bg-orange-500 selection:text-white">
       
-      {/* 1. HERO SECTION WITH SCENIC BACKGROUND */}
-      <section className="relative w-full h-[60vh] sm:h-[65vh] lg:h-[70vh] flex items-center justify-start bg-gray-950 overflow-hidden px-4 sm:px-12 lg:px-20 pt-16">
+      {/* 1. HERO BANNER SECTION */}
+      <section className="relative min-h-[500px] md:min-h-[580px] w-full flex flex-col justify-between bg-gray-950 pt-28 md:pt-36 pb-0 overflow-hidden">
+        {/* Background Image & Gradient */}
         <div className="absolute inset-0 z-0">
           <SafeImage 
-            src="/tours-hero-bg.png" 
-            alt="Moroccan Kasbah Landscape" 
-            className="w-full h-full object-cover object-center scale-105"
+            src="/ChatGPT Image Jul 30, 2026, 10_34_27 PM.png"
+            fallback="/tours-hero-bg.png" 
+            alt="Moroccan Kasbah Sunset"
+            className="w-full h-full object-cover object-top brightness-[0.95] contrast-[1.05]"
           />
-          <div className="absolute inset-0 bg-gradient-to-r from-black/85 via-black/50 to-transparent z-10" />
-          <div className="absolute inset-0 bg-gradient-to-b from-black/30 via-transparent to-[#FAF8F5] z-10" />
+          <div className="absolute inset-0 bg-gradient-to-r from-black/85 via-black/50 to-transparent" />
+          <div className="absolute inset-0 bg-gradient-to-b from-black/40 via-transparent to-black/60" />
         </div>
 
-        <div className="relative z-20 max-w-2xl text-left space-y-4 -mt-8">
-          <span className="text-[11px] font-extrabold uppercase tracking-[0.25em] text-[#E86D5A] block">
-            EXPLORE MOROCCO
-          </span>
-          <h1 className="text-4xl sm:text-6xl lg:text-7xl text-white font-serif font-bold tracking-tight leading-tight drop-shadow-md">
-            One Country,<br />
-            Endless <span className="text-[#E86D5A]">Journeys</span>
-          </h1>
-          <p className="text-xs sm:text-sm text-gray-200 font-light max-w-lg leading-relaxed drop-shadow">
-            Handpicked tours across Morocco. Authentic experiences, local experts, unforgettable memories.
-          </p>
+        {/* Hero Content Overlay */}
+        <div className="relative z-10 max-w-7xl mx-auto px-6 sm:px-12 md:px-16 w-full my-auto text-left text-white pt-8">
+          <div className="max-w-2xl space-y-4">
+            <motion.span 
+              initial={{ opacity: 0, x: -15 }}
+              animate={{ opacity: 1, x: 0 }}
+              transition={{ duration: 0.6 }}
+              className="text-xs uppercase font-extrabold tracking-[0.25em] text-[#E06D29] block"
+            >
+              EXPLORE MOROCCO
+            </motion.span>
+            
+            <motion.h1 
+              initial={{ opacity: 0, x: -20 }}
+              animate={{ opacity: 1, x: 0 }}
+              transition={{ duration: 0.8, delay: 0.1 }}
+              className="text-4xl sm:text-5xl md:text-6xl font-serif tracking-tight text-white font-bold leading-[1.15]"
+            >
+              One Country,
+              <br />
+              <span className="text-[#E06D29]">
+                Endless Journeys
+              </span>
+            </motion.h1>
 
-          {/* 4 Trust Badges */}
-          <div className="flex flex-wrap items-center gap-2.5 sm:gap-4 pt-3 text-white/90 text-xs font-semibold">
-            <div className="flex items-center gap-2 bg-white/10 backdrop-blur-md px-3.5 py-1.5 rounded-full border border-white/20 shadow-sm hover:bg-white/15 transition">
-              <ShieldCheck className="w-4 h-4 text-[#E86D5A]" />
-              <span>100% Local Experts</span>
-            </div>
-            <div className="flex items-center gap-2 bg-white/10 backdrop-blur-md px-3.5 py-1.5 rounded-full border border-white/20 shadow-sm hover:bg-white/15 transition">
-              <Tag className="w-4 h-4 text-[#E86D5A]" />
-              <span>Best Price Guarantee</span>
-            </div>
-            <div className="flex items-center gap-2 bg-white/10 backdrop-blur-md px-3.5 py-1.5 rounded-full border border-white/20 shadow-sm hover:bg-white/15 transition">
-              <Calendar className="w-4 h-4 text-[#E86D5A]" />
-              <span>Flexible Bookings</span>
-            </div>
-            <div className="flex items-center gap-2 bg-white/10 backdrop-blur-md px-3.5 py-1.5 rounded-full border border-white/20 shadow-sm hover:bg-white/15 transition">
-              <Headphones className="w-4 h-4 text-[#E86D5A]" />
-              <span>24/7 Support</span>
-            </div>
-          </div>
-        </div>
-      </section>
+            <motion.p 
+              initial={{ opacity: 0, x: -20 }}
+              animate={{ opacity: 1, x: 0 }}
+              transition={{ duration: 0.8, delay: 0.2 }}
+              className="text-sm sm:text-base text-gray-300 font-light max-w-xl leading-relaxed pt-1"
+            >
+              Handpicked tours across Morocco. Authentic experiences, local experts, and unforgettable memories.
+            </motion.p>
 
-      {/* 2. FLOATING FILTER BAR (Overlapping Hero) */}
-      <section className="max-w-7xl mx-auto px-4 sm:px-8 lg:px-12 relative -mt-16 z-30">
-        <div className="bg-white rounded-3xl p-4 sm:p-6 shadow-xl border border-gray-150 flex flex-col md:flex-row items-center justify-between gap-4">
-          
-          {/* Destination */}
-          <div className="w-full md:w-1/4 flex items-center gap-3 px-3 py-2 border-b md:border-b-0 md:border-r border-gray-100">
-            <MapPin className="w-5 h-5 text-[#E86D5A] shrink-0" />
-            <div className="text-left w-full">
-              <span className="text-[10px] font-extrabold uppercase tracking-wider text-gray-400 block">DESTINATION</span>
-              <select 
-                value={selectedDestination} 
-                onChange={(e) => setSelectedDestination(e.target.value)}
-                className="w-full text-xs font-bold text-gray-900 bg-transparent focus:outline-none cursor-pointer"
-              >
-                <option value="all">Where to?</option>
-                <option value="marrakech">Marrakech</option>
-                <option value="merzouga">Sahara Desert</option>
-                <option value="chefchaouen">Chefchaouen</option>
-                <option value="fes">Fes</option>
-              </select>
-            </div>
-          </div>
-
-          {/* Duration */}
-          <div className="w-full md:w-1/4 flex items-center gap-3 px-3 py-2 border-b md:border-b-0 md:border-r border-gray-100">
-            <Clock className="w-5 h-5 text-[#E86D5A] shrink-0" />
-            <div className="text-left w-full">
-              <span className="text-[10px] font-extrabold uppercase tracking-wider text-gray-400 block">DURATION</span>
-              <select 
-                value={selectedDuration} 
-                onChange={(e) => setSelectedDuration(e.target.value)}
-                className="w-full text-xs font-bold text-gray-900 bg-transparent focus:outline-none cursor-pointer"
-              >
-                <option value="all">Any Duration</option>
-                <option value="short">1 - 3 Days</option>
-                <option value="medium">4 - 7 Days</option>
-                <option value="long">8+ Days</option>
-              </select>
-            </div>
-          </div>
-
-          {/* Budget */}
-          <div className="w-full md:w-1/4 flex items-center gap-3 px-3 py-2 border-b md:border-b-0 md:border-r border-gray-100">
-            <Compass className="w-5 h-5 text-[#E86D5A] shrink-0" />
-            <div className="text-left w-full">
-              <span className="text-[10px] font-extrabold uppercase tracking-wider text-gray-400 block">BUDGET</span>
-              <select 
-                value={selectedBudget} 
-                onChange={(e) => setSelectedBudget(Number(e.target.value))}
-                className="w-full text-xs font-bold text-gray-900 bg-transparent focus:outline-none cursor-pointer"
-              >
-                <option value={3500}>Any Budget</option>
-                <option value={800}>Under €800</option>
-                <option value={1500}>Under €1,500</option>
-                <option value={2500}>Under €2,500</option>
-              </select>
-            </div>
-          </div>
-
-          {/* Tour Type & Search Button */}
-          <div className="w-full md:w-1/4 flex items-center justify-between gap-3 px-3 py-2">
-            <div className="flex items-center gap-3 text-left w-full">
-              <SlidersHorizontal className="w-5 h-5 text-[#E86D5A] shrink-0" />
-              <div className="w-full">
-                <span className="text-[10px] font-extrabold uppercase tracking-wider text-gray-400 block">TOUR TYPE</span>
-                <select className="w-full text-xs font-bold text-gray-900 bg-transparent focus:outline-none cursor-pointer">
-                  <option value="all">All Types</option>
-                  <option value="private">Private Tour</option>
-                  <option value="group">Group Tour</option>
-                </select>
+            {/* Feature Badges Horizontal Row */}
+            <motion.div 
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.8, delay: 0.3 }}
+              className="pt-6 flex flex-wrap items-center gap-5 sm:gap-6 md:gap-8 text-xs font-medium text-gray-200"
+            >
+              <div className="flex items-center gap-2.5">
+                <span className="w-8 h-8 rounded-full border border-[#E06D29]/60 bg-black/40 backdrop-blur-md flex items-center justify-center text-[#E06D29] shrink-0 shadow-sm">
+                  <ShieldCheck className="w-4 h-4" />
+                </span>
+                <span className="text-xs font-semibold text-gray-200">100% Local Experts</span>
               </div>
-            </div>
 
-            <button className="w-12 h-12 rounded-2xl bg-gradient-to-r from-orange-500 via-[#E86D5A] to-rose-500 hover:from-orange-600 hover:to-rose-600 text-white flex items-center justify-center shadow-lg shadow-orange-500/30 shrink-0 transition transform hover:scale-105 cursor-pointer">
-              <Search className="w-5 h-5" />
-            </button>
+              <div className="flex items-center gap-2.5">
+                <span className="w-8 h-8 rounded-full border border-[#E06D29]/60 bg-black/40 backdrop-blur-md flex items-center justify-center text-[#E06D29] shrink-0 shadow-sm">
+                  <Tag className="w-4 h-4" />
+                </span>
+                <span className="text-xs font-semibold text-gray-200">Best Price Guarantee</span>
+              </div>
+
+              <div className="flex items-center gap-2.5">
+                <span className="w-8 h-8 rounded-full border border-[#E06D29]/60 bg-black/40 backdrop-blur-md flex items-center justify-center text-[#E06D29] shrink-0 shadow-sm">
+                  <Calendar className="w-4 h-4" />
+                </span>
+                <span className="text-xs font-semibold text-gray-200">Flexible Bookings</span>
+              </div>
+
+              <div className="flex items-center gap-2.5">
+                <span className="w-8 h-8 rounded-full border border-[#E06D29]/60 bg-black/40 backdrop-blur-md flex items-center justify-center text-[#E06D29] shrink-0 shadow-sm">
+                  <Headphones className="w-4 h-4" />
+                </span>
+                <span className="text-xs font-semibold text-gray-200">24/7 Support</span>
+              </div>
+            </motion.div>
           </div>
+        </div>
 
+        {/* Torn Paper Edge Bottom SVG Divider */}
+        <div className="relative w-full overflow-hidden leading-none z-10 mt-12">
+          <svg className="relative block w-full h-10 md:h-14 text-[#FAF8F5]" viewBox="0 0 1200 120" preserveAspectRatio="none">
+            <path d="M0,120 L0,45 Q15,42 30,48 Q45,54 60,40 Q75,26 90,38 Q105,50 120,44 Q135,38 150,49 Q165,60 180,45 Q195,30 210,42 Q225,54 240,40 Q255,26 270,38 Q285,50 300,43 Q315,36 330,48 Q345,60 360,44 Q375,28 390,41 Q405,54 420,46 Q435,38 450,51 Q465,64 480,47 Q495,30 510,42 Q525,54 540,39 Q555,24 570,37 Q585,50 600,45 Q615,40 630,52 Q645,64 660,46 Q675,28 690,40 Q705,52 720,44 Q735,36 750,49 Q765,62 780,45 Q795,28 810,41 Q825,54 840,43 Q855,32 870,47 Q885,62 900,48 Q915,34 930,44 Q945,54 960,42 Q975,30 990,46 Q1035,36 1050,47 Q1065,58 1080,43 Q1095,28 1110,40 Q1125,52 1140,44 Q1155,36 1170,48 Q1185,60 1200,42 L1200,120 Z" fill="currentColor" />
+          </svg>
         </div>
       </section>
 
-      {/* 3. CATEGORY QUICK PILLS STRIP WITH LUCIDE ICONS */}
-      <section className="max-w-7xl mx-auto px-4 sm:px-8 lg:px-12 py-6 sm:py-8">
-        <div className="bg-white p-3 rounded-2xl border border-gray-150 shadow-sm flex items-center justify-between gap-2 overflow-x-auto scrollbar-none">
-          {categoryPills.map((cat) => {
-            const IconComponent = cat.Icon;
-            const isSelected = selectedCategory === cat.id;
-            return (
-              <button
-                key={cat.id}
-                onClick={() => { setSelectedCategory(cat.id); setCurrentPage(1); }}
-                className={`flex items-center gap-2 px-4 py-2.5 rounded-xl text-xs font-bold whitespace-nowrap transition-all duration-200 cursor-pointer ${
-                  isSelected
-                    ? 'bg-gradient-to-r from-orange-500 via-[#E86D5A] to-rose-500 text-white shadow-md'
-                    : 'text-gray-600 hover:text-[#E86D5A] hover:bg-amber-50/50'
-                }`}
-              >
-                <IconComponent className={`w-4 h-4 ${isSelected ? 'text-white' : 'text-[#E86D5A]'}`} />
-                <span>{cat.label}</span>
-              </button>
-            );
-          })}
-        </div>
-      </section>
-
-      {/* 4. MAIN DIRECTORY LAYOUT (LEFT FILTERS SIDEBAR + 3-COLUMN TOURS GRID) */}
-      <section className="max-w-7xl mx-auto px-4 sm:px-8 lg:px-12 py-4">
+      {/* 2. MAIN DIRECTORY LAYOUT (LEFT FILTERS SIDEBAR + 3-COLUMN TOURS GRID) */}
+      <section className="max-w-7xl mx-auto px-4 sm:px-8 lg:px-12 py-8">
         
         {/* Mobile Filter Toggle Button */}
         <div className="lg:hidden mb-4">
@@ -445,7 +417,7 @@ export default function ToursPage() {
               <h3 className="font-serif font-bold text-base text-gray-900 uppercase tracking-wide">FILTERS</h3>
               <button 
                 onClick={handleResetFilters}
-                className="text-[11px] font-bold text-[#E86D5A] hover:underline flex items-center gap-1"
+                className="text-[11px] font-bold text-[#E86D5A] hover:underline flex items-center gap-1 cursor-pointer"
               >
                 <RotateCcw className="w-3 h-3" />
                 Reset All
@@ -455,12 +427,18 @@ export default function ToursPage() {
             {/* Destination */}
             <div className="space-y-2 text-left">
               <label className="text-[11px] font-bold uppercase tracking-wider text-gray-400 block">DESTINATION</label>
-              <select className="w-full p-3 rounded-xl border border-gray-200 text-xs font-medium text-gray-800 focus:outline-none bg-gray-50/50">
+              <select 
+                value={selectedDestination}
+                onChange={(e) => { setSelectedDestination(e.target.value); setCurrentPage(1); }}
+                className="w-full p-3 rounded-xl border border-gray-200 text-xs font-medium text-gray-800 focus:outline-none bg-gray-50/50 cursor-pointer"
+              >
                 <option value="all">All Destinations</option>
                 <option value="marrakech">Marrakech</option>
-                <option value="merzouga">Sahara Desert</option>
+                <option value="merzouga">Sahara Desert (Merzouga)</option>
                 <option value="chefchaouen">Chefchaouen</option>
                 <option value="fes">Fes</option>
+                <option value="essaouira">Essaouira</option>
+                <option value="atlas">Atlas Mountains</option>
               </select>
             </div>
 
@@ -484,18 +462,26 @@ export default function ToursPage() {
             {/* Duration */}
             <div className="space-y-2 text-left">
               <label className="text-[11px] font-bold uppercase tracking-wider text-gray-400 block">DURATION</label>
-              <select className="w-full p-3 rounded-xl border border-gray-200 text-xs font-medium text-gray-800 focus:outline-none bg-gray-50/50">
+              <select 
+                value={selectedDuration}
+                onChange={(e) => { setSelectedDuration(e.target.value); setCurrentPage(1); }}
+                className="w-full p-3 rounded-xl border border-gray-200 text-xs font-medium text-gray-800 focus:outline-none bg-gray-50/50 cursor-pointer"
+              >
                 <option value="all">Any Duration</option>
-                <option value="3">1 - 3 Days</option>
-                <option value="7">4 - 7 Days</option>
-                <option value="12">8 - 12 Days</option>
+                <option value="short">1 - 5 Days</option>
+                <option value="medium">6 - 8 Days</option>
+                <option value="long">9+ Days</option>
               </select>
             </div>
 
             {/* Tour Type */}
             <div className="space-y-2 text-left">
               <label className="text-[11px] font-bold uppercase tracking-wider text-gray-400 block">TOUR TYPE</label>
-              <select className="w-full p-3 rounded-xl border border-gray-200 text-xs font-medium text-gray-800 focus:outline-none bg-gray-50/50">
+              <select 
+                value={selectedType}
+                onChange={(e) => { setSelectedType(e.target.value); setCurrentPage(1); }}
+                className="w-full p-3 rounded-xl border border-gray-200 text-xs font-medium text-gray-800 focus:outline-none bg-gray-50/50 cursor-pointer"
+              >
                 <option value="all">All Types</option>
                 <option value="private">Private Tour</option>
                 <option value="group">Group Tour</option>
