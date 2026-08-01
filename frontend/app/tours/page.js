@@ -670,7 +670,9 @@ export default function ToursPage() {
         </div>
 
       </section>
+  
 
+  
       {/* 3. WATCH MOROCCO COME TO LIFE BANNER */}
       <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
         <div className="relative w-full h-56 sm:h-64 rounded-3xl overflow-hidden shadow-xl border border-white/10">
