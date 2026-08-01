@@ -1,5 +1,6 @@
 import "./globals.css";
 import { Plus_Jakarta_Sans, Playfair_Display } from "next/font/google";
+import Script from "next/script";
 import Navbar from "./components/Navbar";
 import FooterWrapper from "./components/FooterWrapper";
 import ClientWidgets from "./components/ClientWidgets";
@@ -20,6 +21,7 @@ const fontSerif = Playfair_Display({
 });
 
 const baseUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://moroccovibe.com';
+const gaId = process.env.NEXT_PUBLIC_GA_ID;
 
 export const viewport = {
   themeColor: '#FF5B35',
@@ -67,6 +69,9 @@ export const metadata = {
       'max-snippet': -1,
     },
   },
+  verification: {
+    google: process.env.NEXT_PUBLIC_GOOGLE_SITE_VERIFICATION || 'your_gsc_verification_code_here',
+  },
   openGraph: {
     title: "Morocco Vibe | Premium Custom Travel & Saharan Luxury Expeditions",
     description: "Discover authentic luxury Moroccan travel with private drivers, 5-star desert encampments, and bespoke cultural itineraries.",
@@ -100,6 +105,26 @@ export default function RootLayout({ children }) {
   return (
     <html lang="en" className={`${fontSans.variable} ${fontSerif.variable}`} suppressHydrationWarning>
       <body className="bg-luxuryBg text-luxuryDark font-sans antialiased min-h-screen flex flex-col justify-between" suppressHydrationWarning>
+        {/* Google Analytics 4 (GA4) / GTM Script Loading */}
+        {gaId && (
+          <>
+            <Script
+              src={`https://www.googletagmanager.com/gtag/js?id=${gaId}`}
+              strategy="afterInteractive"
+            />
+            <Script id="google-analytics" strategy="afterInteractive">
+              {`
+                window.dataLayer = window.dataLayer || [];
+                function gtag(){dataLayer.push(arguments);}
+                gtag('js', new Date());
+                gtag('config', '${gaId}', {
+                  page_path: window.location.pathname,
+                });
+              `}
+            </Script>
+          </>
+        )}
+
         <ClientWidgets />
         <LanguageProvider>
           <CurrencyProvider>
