@@ -50,8 +50,93 @@ export default function HomePage() {
     }
   };
 
+  const travelAgencySchema = {
+    '@context': 'https://schema.org',
+    '@type': ['TravelAgency', 'TouristInformationCenter'],
+    '@id': 'https://moroccovibe.com/#organization',
+    'name': 'Morocco Vibe',
+    'alternateName': 'Morocco Vibe Travel & Tours',
+    'url': 'https://moroccovibe.com',
+    'logo': 'https://moroccovibe.com/assets/logo-full.png',
+    'image': 'https://moroccovibe.com/assets/desert-luxury-1.png',
+    'telephone': '+212634332000',
+    'email': 'contact@moroccovibe.com',
+    'priceRange': '$$$',
+    'address': {
+      '@type': 'PostalAddress',
+      'streetAddress': 'Medina Heritage Quarter',
+      'addressLocality': 'Marrakech',
+      'addressRegion': 'Marrakech-Safi',
+      'postalCode': '40000',
+      'addressCountry': 'MA'
+    },
+    'geo': {
+      '@type': 'GeoCoordinates',
+      'latitude': 31.6295,
+      'longitude': -7.9811
+    },
+    'contactPoint': {
+      '@type': 'ContactPoint',
+      'telephone': '+212634332000',
+      'contactType': 'customer service',
+      'areaServed': 'Worldwide',
+      'availableLanguage': ['English', 'French', 'Spanish', 'Arabic']
+    },
+    'openingHoursSpecification': {
+      '@type': 'OpeningHoursSpecification',
+      'dayOfWeek': [
+        'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'
+      ],
+      'opens': '08:00',
+      'closes': '22:00'
+    },
+    'sameAs': [
+      'https://instagram.com/moroccovibe',
+      'https://facebook.com/moroccovibe'
+    ]
+  };
+
+  const faqSchema = {
+    '@context': 'https://schema.org',
+    '@type': 'FAQPage',
+    'mainEntity': [
+      {
+        '@type': 'Question',
+        'name': 'Are all tours private and customizable?',
+        'acceptedAnswer': {
+          '@type': 'Answer',
+          'text': 'Yes! Every itinerary is 100% private and fully tailorable to your travel pace, accommodation preferences, and interest points.'
+        }
+      },
+      {
+        '@type': 'Question',
+        'name': 'What is included in the Sahara Desert Luxury Expedition?',
+        'acceptedAnswer': {
+          '@type': 'Answer',
+          'text': 'Our Sahara expeditions include private 4x4 transport with an experienced driver/guide, luxury air-conditioned desert camp stays with ensuite bathrooms, camel trekking, dinners, and breakfasts.'
+        }
+      },
+      {
+        '@type': 'Question',
+        'name': 'What languages do your local guides speak?',
+        'acceptedAnswer': {
+          '@type': 'Answer',
+          'text': 'Our professional tour drivers and local medina guides speak fluent English, French, Spanish, and Arabic.'
+        }
+      }
+    ]
+  };
+
   return (
     <div className="w-full min-h-screen bg-[#FDFBF7] scroll-smooth font-sans text-gray-800 relative z-0">
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(travelAgencySchema) }}
+      />
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(faqSchema) }}
+      />
       
       {/* 1. HERO SECTION (Matched exactly to reference design & fully responsive) */}
       <section className="min-h-screen lg:h-screen w-full relative overflow-hidden flex flex-col justify-between pt-20 sm:pt-24 lg:pt-28 pb-6 sm:pb-8 bg-gray-950">
@@ -62,6 +147,7 @@ export default function HomePage() {
             alt="Morocco Sunset Landscape Cover"
             fill
             priority
+            sizes="100vw"
             className="object-cover object-center scale-100"
           />
           {/* Subtle top gradient only for top navigation readability */}

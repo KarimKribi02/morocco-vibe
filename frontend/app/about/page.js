@@ -27,16 +27,26 @@ function InstagramIcon({ className = "w-3.5 h-3.5" }) {
   );
 }
 
-// Safe Image Component with fallback
-function SafeImage({ src, fallback = '/placeholder.png', alt, className, ...props }) {
+import Image from 'next/image';
+
+// Safe Image Component with fallback using Next.js Image optimization
+function SafeImage({ src, fallback = '/placeholder.png', alt, className, priority = false, sizes = "(max-width: 768px) 100vw, 50vw", unoptimized, ...props }) {
   const [imgSrc, setImgSrc] = useState(src);
   useEffect(() => {
     setImgSrc(src);
   }, [src]);
+
+  const finalSrc = imgSrc || fallback;
+  const isLocalhostMedia = typeof finalSrc === 'string' && (finalSrc.includes('localhost') || finalSrc.includes('127.0.0.1'));
+
   return (
-    <img 
-      src={imgSrc || fallback} 
+    <Image 
+      src={finalSrc} 
       alt={alt || "Travel Image"} 
+      fill
+      priority={priority}
+      sizes={sizes}
+      unoptimized={unoptimized !== undefined ? unoptimized : isLocalhostMedia}
       className={className}
       onError={() => setImgSrc(fallback)} 
       {...props} 
@@ -163,51 +173,7 @@ export default function AboutPage() {
 
   const t = localTranslations[currentLocale] || localTranslations['en'];
 
-  // Team members list matching the design image
-  const teamMembers = [
-    {
-      name: "Youssef El Amrani",
-      role: "Founder & CEO",
-      image: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?q=80&w=600&auto=format&fit=crop",
-      linkedin: "#",
-      instagram: "#"
-    },
-    {
-      name: "Salma El Fassi",
-      role: "Travel Experience Manager",
-      image: "https://images.unsplash.com/photo-1534528741775-53994a69daeb?q=80&w=600&auto=format&fit=crop",
-      linkedin: "#",
-      instagram: "#"
-    },
-    {
-      name: "Hassan Ait Hamou",
-      role: "Head Tour Guide",
-      image: "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?q=80&w=600&auto=format&fit=crop",
-      linkedin: "#",
-      instagram: "#"
-    },
-    {
-      name: "Meryem Belaid",
-      role: "Customer Relations",
-      image: "https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?q=80&w=600&auto=format&fit=crop",
-      linkedin: "#",
-      instagram: "#"
-    },
-    {
-      name: "Omar Belkacem",
-      role: "Operations Manager",
-      image: "https://images.unsplash.com/photo-1522075469751-3a6694fb2f61?q=80&w=600&auto=format&fit=crop",
-      linkedin: "#",
-      instagram: "#"
-    },
-    {
-      name: "Nadia Benali",
-      role: "Marketing Specialist",
-      image: "https://images.unsplash.com/photo-1580489944761-15a19d654956?q=80&w=600&auto=format&fit=crop",
-      linkedin: "#",
-      instagram: "#"
-    }
-  ];
+  
 
   return (
     <div className="bg-[#FAF8F5] min-h-screen font-sans text-gray-800 overflow-x-hidden selection:bg-amber-500 selection:text-white">
@@ -220,6 +186,8 @@ export default function AboutPage() {
             src="/ChatGPT Image Jul 30, 2026, 09_28_50 PM.png"
             fallback="/hero-bg.jpg" 
             alt="Moroccan Kasbah Sunset Coast"
+            priority={true}
+            sizes="100vw"
             className="w-full h-full object-cover object-top brightness-[0.95] contrast-[1.05]"
           />
           {/* Subtle gradient mask: keeps left side readable while preserving the vibrant sunset Kasbah on the right */}
@@ -478,56 +446,7 @@ export default function AboutPage() {
           </svg>
         </div>
 
-        {/* Team Grid (6 Cards) */}
-        <div className="mt-12 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6 gap-6">
-          {teamMembers.map((member, idx) => (
-            <motion.div 
-              key={idx}
-              initial={{ opacity: 0, y: 20 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true }}
-              transition={{ duration: 0.6, delay: idx * 0.1 }}
-              whileHover={{ y: -6 }}
-              className="bg-white rounded-2xl p-4 border border-amber-100/60 shadow-sm hover:shadow-xl transition-all duration-300 text-center flex flex-col items-center group"
-            >
-              {/* Member Portrait */}
-              <div className="w-full h-56 rounded-xl overflow-hidden mb-4 bg-gray-100">
-                <SafeImage 
-                  src={member.image} 
-                  alt={member.name}
-                  className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
-                />
-              </div>
-
-              {/* Info */}
-              <h3 className="font-serif font-bold text-gray-900 text-base group-hover:text-[#E06D29] transition-colors">
-                {member.name}
-              </h3>
-              
-              <p className="text-xs text-[#E06D29] font-medium mt-1 mb-4">
-                {member.role}
-              </p>
-
-              {/* Social Icons */}
-              <div className="flex items-center gap-2 mt-auto">
-                <a 
-                  href={member.linkedin} 
-                  className="w-7 h-7 rounded-full bg-amber-50 hover:bg-[#E06D29] text-[#E06D29] hover:text-white flex items-center justify-center transition-colors text-xs"
-                  aria-label="LinkedIn"
-                >
-                  <LinkedinIcon className="w-3.5 h-3.5" />
-                </a>
-                <a 
-                  href={member.instagram} 
-                  className="w-7 h-7 rounded-full bg-amber-50 hover:bg-[#E06D29] text-[#E06D29] hover:text-white flex items-center justify-center transition-colors text-xs"
-                  aria-label="Instagram"
-                >
-                  <InstagramIcon className="w-3.5 h-3.5" />
-                </a>
-              </div>
-            </motion.div>
-          ))}
-        </div>
+       
       </section>
 
       {/* 5. BOTTOM CALL TO ACTION BANNER */}

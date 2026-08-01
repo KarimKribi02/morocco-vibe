@@ -6,22 +6,33 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { 
   Clock, User, ChevronDown, Check, X as CloseIcon, 
   Map, MessageSquare, Info, Calendar, MapPin, Image as ImageIcon, 
-  Star, Send, ShieldAlert, Award, Play
+  Star, Send, ShieldAlert, Award, Play, RotateCcw, Tag, Zap, Headphones,
+  Users, Mail, Phone, ExternalLink, ChevronRight, ShieldCheck
 } from 'lucide-react';
 import { fetchFromStrapi, getStrapiMedia } from '../../../lib/strapi';
 import { useCurrency } from '../../../context/CurrencyContext';
 import { useLanguage } from '../../../context/LanguageContext';
 
-// Safe Stateful Image Component
-function SafeImage({ src, fallback = '/placeholder.png', alt, className, ...props }) {
+import Image from 'next/image';
+
+// Safe Stateful Image Component using Next.js Image optimization
+function SafeImage({ src, fallback = '/assets/desert-luxury-1.png', alt, className, priority = false, sizes = "(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw", unoptimized, ...props }) {
   const [imgSrc, setImgSrc] = useState(src);
   useEffect(() => {
     setImgSrc(src);
   }, [src]);
+
+  const finalSrc = imgSrc || fallback;
+  const isLocalhostMedia = typeof finalSrc === 'string' && (finalSrc.includes('localhost') || finalSrc.includes('127.0.0.1'));
+
   return (
-    <img 
-      src={imgSrc || fallback} 
+    <Image 
+      src={finalSrc} 
       alt={alt || "Tour Detail Image"} 
+      fill
+      priority={priority}
+      sizes={sizes}
+      unoptimized={unoptimized !== undefined ? unoptimized : isLocalhostMedia}
       className={className}
       onError={() => setImgSrc(fallback)} 
       {...props} 
@@ -29,298 +40,68 @@ function SafeImage({ src, fallback = '/placeholder.png', alt, className, ...prop
   );
 }
 
-const fallbackLocalTours = {
-  en: [
-    {
-      id: 991,
-      slug: "sahara-luxury-nomad-expedition",
-      title: "Sahara Luxury Nomad Expedition",
-      excerpt: "Experience a premium nomad journey across the golden dunes of Merzouga. Five-star private encampments, camel treks, and dedicated guide services included.",
-      overview: "Experience a premium nomad journey across the golden dunes of Merzouga. Five-star private encampments, camel treks, and dedicated guide services included. Complete VIP private transport in our premium Mercedes V-Class and 24/7 concierge hosting are active throughout your stay.",
-      price: 1200,
-      salePrice: 990,
-      rating: "5.0",
-      destination: "Sahara Desert",
-      featured: true,
-      startDate: "Flexible",
-      departure: "Marrakech Menara Airport / Hotel Lobby",
-      departureTime: "08:00 AM",
-      returnTime: "07:00 PM",
-      dressCode: "Comfortable desert wear, loose linen, sunglasses",
-      whatsIncluded: [
-        { id: 1, text: "Private VIP Mercedes V-Class Transport" },
-        { id: 2, text: "5-Star Luxury Nomad Camp Lodging" },
-        { id: 3, text: "24/7 Dedicated Local Concierge Host" }
-      ],
-      whatsNotIncluded: [
-        { id: 1, text: "International Flights" },
-        { id: 2, text: "Personal Shopping & Souvenirs" }
-      ],
-      itinerary: [
-        { id: 1, day: "Day 1", title: "Arrival & Medina Welcome", description: "Arrive in Marrakech. Private transfer to your luxury medina riad, followed by an evening tea orientation." },
-        { id: 2, day: "Day 2", title: "Merzouga Camel Safari & Sunset", description: "Journey past the Atlas mountains to Merzouga. Embark on a private camel trek to your 5-star oasis camp." },
-        { id: 3, day: "Day 3", title: "Sunrise Dunes & Departure", description: "Enjoy a traditional nomad breakfast under the desert sunrise before a scenic private return transit." }
-      ],
-      mainImage: { url: "/assets/desert-luxury-1.png" },
-      gallery: []
-    },
-    {
-      id: 992,
-      slug: "imperial-cities-medina-heritage",
-      title: "Imperial Cities & Medina Heritage",
-      excerpt: "Explore the historical ramparts and vibrant alleys of Fès and Marrakech. Handpicked luxury riads and expert cultural local guides.",
-      overview: "Explore the historical ramparts and vibrant alleys of Fès and Marrakech. Handpicked luxury riads and expert cultural local guides. Experience centuries of rich cultural history and royal architectural masterworks.",
-      price: 850,
-      salePrice: null,
-      rating: "4.9",
-      destination: "Marrakech & Fes",
-      featured: false,
-      startDate: "Flexible",
-      departure: "Marrakech or Fes Airport / Hotel Lobby",
-      departureTime: "08:30 AM",
-      returnTime: "06:00 PM",
-      dressCode: "Modest casual clothing, walking shoes",
-      whatsIncluded: [
-        { id: 1, text: "Bespoke Cultural Walking Guides" },
-        { id: 2, text: "Luxury Historic Riad Accommodations" },
-        { id: 3, text: "All Monument Entry Tickets" }
-      ],
-      whatsNotIncluded: [
-        { id: 1, text: "Personal Dinners & Alcohols" }
-      ],
-      itinerary: [
-        { id: 1, day: "Day 1", title: "Marrakech Medina Wonders", description: "Guided exploration of Bahia Palace, Saadian Tombs, and the bustling Jemaa el-Fnaa square." },
-        { id: 2, day: "Day 2", title: "Imperial Fes Alleys", description: "Transit to Fes. Walk through the tanneries, Al-Qarawiyyin mosque, and historical city gates." }
-      ],
-      mainImage: { url: "/assets/imperial-heritage.png" },
-      gallery: []
-    },
-    {
-      id: 993,
-      slug: "bespoke-atlas-mountains-desert-oasis",
-      title: "Bespoke Atlas Mountains & Desert Oasis",
-      excerpt: "A premium combination of high Atlas trekking and deep desert wellness retreats. Features five-star transport and private concierge.",
-      overview: "A premium combination of high Atlas trekking and deep desert wellness retreats. Features five-star transport and private concierge. Perfectly blends physical revitalization with absolute desert peace.",
-      price: 1450,
-      salePrice: 1290,
-      rating: "4.8",
-      destination: "Atlas Mountains",
-      featured: true,
-      startDate: "Flexible",
-      departure: "Marrakech Hotel Lobby",
-      departureTime: "07:30 AM",
-      returnTime: "08:00 PM",
-      dressCode: "Sporty trekking layers, hiking boots, warm jacket",
-      whatsIncluded: [
-        { id: 1, text: "Private Mountain Guide & Mules" },
-        { id: 2, text: "Luxury Eco-Lodge Wellness Retreat" },
-        { id: 3, text: "Organic Traditional Gastronomy" }
-      ],
-      whatsNotIncluded: [
-        { id: 1, text: "Mountain Equipment Rentals" }
-      ],
-      itinerary: [
-        { id: 1, day: "Day 1", title: "Atlas Peaks Trekking", description: "Ascend past scenic Berber villages in Ourika valley, with private local lunch host." },
-        { id: 2, day: "Day 2", title: "Desert Oasis Wellness", description: "Settle into your premium oasis eco-resort for private Hammam and wellness therapy under the stars." }
-      ],
-      mainImage: { url: "/assets/desert-luxury-2.png" },
-      gallery: []
-    }
+const fallbackDefaultTour = {
+  id: 100,
+  slug: "10-days-in-morocco-itinerary-desert-imperial-cities-the-north",
+  title: "10 Days in Morocco Itinerary – Desert, Imperial Cities & the North",
+  excerpt: "Planning 10 days in Morocco and wondering how to see the most in a limited time? This carefully designed 10-day itinerary takes you through the country's highlights.",
+  overview: "Planning 10 days in Morocco and wondering how to see the most in a limited time? This carefully designed 10-day in Morocco itinerary takes you through the country's highlights — from Marrakech and the Atlas Mountains to the Sahara Desert, Fés, Chefchaouen, Rabat, and Casablanca.\n\nIdeal for first-time visitors, this 10-day Morocco trip combines cultural discovery, scenic landscapes, and authentic experiences, all with a private driver and expert local guides.",
+  price: 1290,
+  salePrice: null,
+  rating: "5.0",
+  reviewsCount: 28,
+  duration: "10 Days / 9 Nights",
+  groupType: "Small Group Tour",
+  guideType: "Expert Local Guides",
+  destination: "Marrakech, Sahara, Fes, Chefchaouen & Casablanca",
+  featured: true,
+  startDate: "Flexible Daily Departure",
+  whatsIncluded: [
+    { id: 1, text: "Pick up service from your accommodation in Marrakech" },
+    { id: 2, text: "Private transport in an A/C vehicle" },
+    { id: 3, text: "Professional English speaking driver" },
+    { id: 4, text: "Overnight in carefully selected hotels / Riads" },
+    { id: 5, text: "Camel ride in the Sahara desert" },
+    { id: 6, text: "Daily breakfast" },
+    { id: 7, text: "Fuel and tolls" },
+    { id: 8, text: "Local guides in major cities" },
+    { id: 9, text: "All taxes and service charges" }
   ],
-  fr: [
-    {
-      id: 991,
-      slug: "sahara-luxury-nomad-expedition",
-      title: "Expédition Nomade de Luxe au Sahara",
-      excerpt: "Vivez un voyage nomade haut de gamme à travers les dunes dorées de Merzouga. Campements privés cinq étoiles, randonnées à chameau et guides dédiés inclus.",
-      overview: "Vivez un voyage nomade haut de gamme à travers les dunes dorées de Merzouga. Campements privés cinq étoiles, randonnées à chameau et guides dédiés inclus. Transport VIP complet dans notre Mercedes Classe V et assistance conciergerie 24/7 active.",
-      price: 1200,
-      salePrice: 990,
-      rating: "5.0",
-      destination: "Désert du Sahara",
-      featured: true,
-      startDate: "Flexible",
-      departure: "Aéroport de Marrakech Ménara / Lobby de l'hôtel",
-      departureTime: "08:00",
-      returnTime: "19:00",
-      dressCode: "Tenue de désert confortable, lin léger, lunettes de soleil",
-      whatsIncluded: [
-        { id: 1, text: "Transport Privé VIP Mercedes Classe V" },
-        { id: 2, text: "Logement en Camp Nomade de Luxe 5 Étoiles" },
-        { id: 3, text: "Hôte Conciergerie Locale Dédié 24h/24" }
-      ],
-      whatsNotIncluded: [
-        { id: 1, text: "Vols Internationaux" },
-        { id: 2, text: "Achats Personnels & Souvenirs" }
-      ],
-      itinerary: [
-        { id: 1, day: "Jour 1", title: "Arrivée & Accueil à la Médina", description: "Arrivée à Marrakech. Transfert privé vers votre riad de luxe de la médina, suivi d'une orientation autour d'un thé." },
-        { id: 2, day: "Jour 2", title: "Safari à Chameau à Merzouga", description: "Voyage à travers les montagnes de l'Atlas vers Merzouga. Randonnée privée à chameau vers votre campement d'oasis 5 étoiles." },
-        { id: 3, day: "Jour 3", title: "Aurore sur les Dunes & Retour", description: "Savourez un petit-déjeuner traditionnel nomade sous le lever du soleil du désert avant votre transfert de retour." }
-      ],
-      mainImage: { url: "/assets/desert-luxury-1.png" },
-      gallery: []
-    },
-    {
-      id: 992,
-      slug: "imperial-cities-medina-heritage",
-      title: "Villes Impériales & Patrimoine de la Médina",
-      excerpt: "Explorez les remparts historiques et les ruelles animées de Fès et Marrakech. Riads de luxe sélectionnés et guides locaux experts.",
-      overview: "Explorez les remparts historiques et les ruelles animées de Fès et Marrakech. Riads de luxe sélectionnés et guides locaux experts. Découvrez des siècles d'histoire culturelle riche et de chefs-d'œuvre architecturaux royaux.",
-      price: 850,
-      salePrice: null,
-      rating: "4.9",
-      destination: "Marrakech et Fès",
-      featured: false,
-      startDate: "Flexible",
-      departure: "Aéroport de Marrakech ou Fès / Lobby de l'hôtel",
-      departureTime: "08:30",
-      returnTime: "18:00",
-      dressCode: "Vêtements de ville modestes et confortables, chaussures de marche",
-      whatsIncluded: [
-        { id: 1, text: "Guides de Marche Culturels Sur Mesure" },
-        { id: 2, text: "Hébergements en Riad Historique de Luxe" },
-        { id: 3, text: "Tous les Billets d'Entrée aux Monuments" }
-      ],
-      whatsNotIncluded: [
-        { id: 1, text: "Dîners Personnels & Alcools" }
-      ],
-      itinerary: [
-        { id: 1, day: "Jour 1", title: "Merveilles de la Médina de Marrakech", description: "Exploration guidée du Palais de la Bahia, des Tombeaux Saadiens et de la place animée Jemaa el-Fnaa." },
-        { id: 2, day: "Jour 2", title: "Ruelles Impériales de Fès", description: "Transit vers Fès. Promenade dans les tanneries, la mosquée Al-Qarawiyyin et les portes historiques de la ville." }
-      ],
-      mainImage: { url: "/assets/imperial-heritage.png" },
-      gallery: []
-    },
-    {
-      id: 993,
-      slug: "bespoke-atlas-mountains-desert-oasis",
-      title: "Montagnes de l'Atlas & Oasis du Désert Sur Mesure",
-      excerpt: "Une combinaison unique de randonnées dans le Haut Atlas et de retraites de bien-être dans le désert. Transport VIP et conciergerie privée.",
-      overview: "Une combinaison unique de randonnées dans le Haut Atlas et de retraites de bien-être dans le désert. Transport VIP et conciergerie privée. Allie harmonieusement la revitalisation physique à la paix absolue du désert.",
-      price: 1450,
-      salePrice: 1290,
-      rating: "4.8",
-      destination: "Montagnes de l'Atlas",
-      featured: true,
-      startDate: "Flexible",
-      departure: "Lobby de l'hôtel à Marrakech",
-      departureTime: "07:30",
-      returnTime: "20:00",
-      dressCode: "Couches de trekking de sport, bottes de randonnée, veste chaude",
-      whatsIncluded: [
-        { id: 1, text: "Guide de Montagne Privé & Mulets" },
-        { id: 2, text: "Retraite de Bien-Être en Éco-Lodge de Luxe" },
-        { id: 3, text: "Gastronomie Traditionnelle Biologique" }
-      ],
-      whatsNotIncluded: [
-        { id: 1, text: "Location d'Équipement de Montagne" }
-      ],
-      itinerary: [
-        { id: 1, day: "Jour 1", title: "Randonnée dans l'Atlas", description: "Ascension à travers de pittoresques villages berbères dans la vallée de l'Ourika, avec déjeuner bio local chez l'habitant." },
-        { id: 2, day: "Jour 2", title: "Bien-Être Oasis du Désert", description: "Installation dans votre éco-resort de bien-être pour un hammam privé et des thérapies sous les étoiles." }
-      ],
-      mainImage: { url: "/assets/desert-luxury-2.png" },
-      gallery: []
-    }
+  whatsNotIncluded: [
+    { id: 1, text: "International flights to/from Morocco" },
+    { id: 2, text: "Travel insurance" },
+    { id: 3, text: "Lunches and personal expenses" },
+    { id: 4, text: "Tips and gratuities" },
+    { id: 5, text: "Optional activities not mentioned in the program" }
   ],
-  es: [
-    {
-      id: 991,
-      slug: "sahara-luxury-nomad-expedition",
-      title: "Expedición Nómada de Lujo en el Sahara",
-      excerpt: "Viva un viaje nómada de primer nivel a través de las dunas doradas de Merzouga. Campamientos de cinco estrellas, paseos en camello y guías dedicados.",
-      overview: "Viva un viaje nómada de primer nivel a través de las dunas doradas de Merzouga. Campamientos de cinco estrellas, paseos en camello y guías dedicados. Transporte VIP en Mercedes Clase V y concierge 24/7 activo.",
-      price: 1200,
-      salePrice: 990,
-      rating: "5.0",
-      destination: "Desierto del Sahara",
-      featured: true,
-      startDate: "Flexible",
-      departure: "Aeropuerto de Marrakech Menara / Lobby del hotel",
-      departureTime: "08:00",
-      returnTime: "19:00",
-      dressCode: "Ropa de desierto cómoda, lino ligero, gafas de sol",
-      whatsIncluded: [
-        { id: 1, text: "Transporte Privado VIP Mercedes Clase V" },
-        { id: 2, text: "Hospedaje en Campamento de Lujo de 5 Estrellas" },
-        { id: 3, text: "Servicio de Conserjería Local Dedicado las 24 Horas" }
-      ],
-      whatsNotIncluded: [
-        { id: 1, text: "Vuelos Internacionales" },
-        { id: 2, text: "Compras Personales & Recuerdos" }
-      ],
-      itinerary: [
-        { id: 1, day: "Día 1", title: "Llegada y Bienvenida en la Medina", description: "Llegada a Marrakech. Traslado privado a su riad de lujo en la medina, con orientación de bienvenida." },
-        { id: 2, day: "Día 2", title: "Paseo en Camello en Merzouga", description: "Viaje a través del Atlas a Merzouga. Paseo privado en camello al atardecer hasta su campamento de 5 estrellas." },
-        { id: 3, day: "Día 3", title: "Amanecer en las Dunas y Salida", description: "Disfrute de un desayuno tradicional nómada bajo el amanecer antes de su cómodo traslado privado de regreso." }
-      ],
-      mainImage: { url: "/assets/desert-luxury-1.png" },
-      gallery: []
-    },
-    {
-      id: 992,
-      slug: "imperial-cities-medina-heritage",
-      title: "Ciudades Imperiales y Patrimonio de la Medina",
-      excerpt: "Explore las murallas históricas y los vibrantes callejones de Fez y Marrakech. Riads de lujo seleccionados y guías locales expertos.",
-      overview: "Explore las murallas históricas y los vibrantes callejones de Fez y Marrakech. Riads de lujo seleccionados y guías locales expertos. Experimente siglos de rica historia y obras maestras arquitectónicas reales.",
-      price: 850,
-      salePrice: null,
-      rating: "4.9",
-      destination: "Marrakech y Fez",
-      featured: false,
-      startDate: "Flexible",
-      departure: "Aeropuerto de Marrakech o Fez / Lobby del hotel",
-      departureTime: "08:30",
-      returnTime: "18:00",
-      dressCode: "Ropa urbana cómoda y modesta, calzado para caminar",
-      whatsIncluded: [
-        { id: 1, text: "Guías de Caminata Cultural a Medida" },
-        { id: 2, text: "Alojamientos en Riads Históricos de Lujo" },
-        { id: 3, text: "Todas las Entradas a Monumentos" }
-      ],
-      whatsNotIncluded: [
-        { id: 1, text: "Cenas Personales & Bebidas Alcohólicas" }
-      ],
-      itinerary: [
-        { id: 1, day: "Día 1", title: "Maravillas de la Medina de Marrakech", description: "Visita guiada al Palacio de la Bahía, Tumbas Saadíes y la concurrida plaza de Jemaa el-Fnaa." },
-        { id: 2, day: "Día 2", title: "Callejones de Fez Imperial", description: "Tránsito a Fez. Paseo por las curtidurías, la mezquita Al-Qarawiyyin y las puertas históricas." }
-      ],
-      mainImage: { url: "/assets/imperial-heritage.png" },
-      gallery: []
-    },
-    {
-      id: 993,
-      slug: "bespoke-atlas-mountains-desert-oasis",
-      title: "Montañas del Atlas y Oasis del Desierto a Medida",
-      excerpt: "Una combinación premium de senderismo por el Alto Atlas y retiros de bienestar en el desierto. Transporte VIP y servicio de conserjería privado.",
-      overview: "Una combinación premium de senderismo por el Alto Atlas y retiros de bienestar en el desierto. Transporte VIP y servicio de conserjería privado. Combina el revigorizamiento físico con la paz absoluta del desierto.",
-      price: 1450,
-      salePrice: 1290,
-      rating: "4.8",
-      destination: "Montañas del Atlas",
-      featured: true,
-      startDate: "Flexible",
-      departure: "Lobby del hotel en Marrakech",
-      departureTime: "07:30",
-      returnTime: "20:00",
-      dressCode: "Capas de trekking deportivo, botas de senderismo, chaqueta de abrigo",
-      whatsIncluded: [
-        { id: 1, text: "Guía de Montaña Privado & Mulas" },
-        { id: 2, text: "Retiro de Bienestar en Eco-Lodge de Lujo" },
-        { id: 3, text: "Gastronomía Orgánica Tradicional" }
-      ],
-      whatsNotIncluded: [
-        { id: 1, text: "Alquiler de Equipos de Montaña" }
-      ],
-      itinerary: [
-        { id: 1, day: "Día 1", title: "Senderismo en el Atlas", description: "Ascenso por pintorescos pueblos bereberes en el valle de Ourika, con almuerzo orgánico local." },
-        { id: 2, day: "Día 2", title: "Bienestar en el Oasis del Desierto", description: "Instalación en su eco-resort para un hammam privado y terapia bajo las estrellas." }
-      ],
-      mainImage: { url: "/assets/desert-luxury-2.png" },
-      gallery: []
-    }
+  itinerary: [
+    { id: 1, dayLabel: "DAY 1", dayTitle: "Arrival in Marrakech", dayContent: "Today we'll have a guided tour of Marrakech. You'll explore the main attractions and monuments of the city including the world famous Jemaa el-Fna square, Koutoubia mosque, the souks, palaces, and museums. We'll also explore off-the-beaten-path spots such as the French Colonial District and the Menara Gardens." },
+    { id: 2, dayLabel: "DAY 2", dayTitle: "Marrakech City Tour", dayContent: "Full day exploring Marrakech with your private expert guide. Visit Bahia Palace, Saadian Tombs, and the bustling artisan workshops." },
+    { id: 3, dayLabel: "DAY 3", dayTitle: "Marrakech to Ait Ben Haddou & Ouarzazate", dayContent: "Cross the Tizi n'Tichka pass through the High Atlas Mountains to the UNESCO World Heritage site of Ait Ben Haddou." },
+    { id: 4, dayLabel: "DAY 4", dayTitle: "Sahara Excursion (Erg Chebbi)", dayContent: "Travel through Dades Valley and Todra Gorge to Merzouga. Enjoy a sunset camel trek into the golden Erg Chebbi dunes." },
+    { id: 5, dayLabel: "DAY 5", dayTitle: "Merzouga – Midelt", dayContent: "Early morning sunrise over the Sahara dunes, followed by a scenic drive through the Ziz Valley towards Midelt." },
+    { id: 6, dayLabel: "DAY 6", dayTitle: "Midelt – Fes", dayContent: "Journey through the Cedar Forests of Azrou, home to Barbary macaques, and stop in Ifrane before arriving in historic Fes." },
+    { id: 7, dayLabel: "DAY 7", dayTitle: "Fes guided tour", dayContent: "Step back in time with a full day guided walking tour of Fes el-Bali medina, Al-Qarawiyyin University, and the famous tanneries." },
+    { id: 8, dayLabel: "DAY 8", dayTitle: "Fes – Chefchaouen", dayContent: "Drive north into the Rif Mountains to the famous Blue Pearl of Morocco, Chefchaouen. Explore its charming blue-washed streets." },
+    { id: 9, dayLabel: "DAY 9", dayTitle: "Chefchaouen – Rabat – Casablanca", dayContent: "Travel to the capital city of Rabat to see the Hassan Tower and Kasbah of the Udayas, then continue to coastal Casablanca." },
+    { id: 10, dayLabel: "DAY 10", dayTitle: "Casablanca at Your Leisure, Transfer to the Airport", dayContent: "Visit the iconic Hassan II Mosque before your private transfer to Casablanca Mohammed V Airport for your departure." }
+  ],
+  mainImage: { url: "/hero-bg-v2.png" },
+  mapImage: { url: "/assets/morocco-route-map.png" },
+  gallery: [
+    { url: "/dest-chefchaouen.png" },
+    { url: "/assets/desert-luxury-1.png" },
+    { url: "/dest-marrakech.png" },
+    { url: "/assets/imperial-heritage.png" },
+    { url: "/dest-fes.png" },
+    { url: "/dest-atlas.png" }
   ]
+};
+
+const fallbackLocalTours = {
+  en: [fallbackDefaultTour],
+  fr: [fallbackDefaultTour],
+  es: [fallbackDefaultTour]
 };
 
 export default function TourDetailPage({ params: paramsPromise }) {
@@ -334,31 +115,32 @@ export default function TourDetailPage({ params: paramsPromise }) {
   const [error, setError] = useState(false);
   const [openDayIndex, setOpenDayIndex] = useState(0);
 
-  // Booking Card States
+  // Booking Card Form States
   const [bookingForm, setBookingForm] = useState({
     name: '',
     email: '',
-    confirmEmail: '',
     phone: '',
     date: '',
-    tickets: '1',
+    travelers: '1',
     message: ''
   });
   const [bookingSuccess, setBookingSuccess] = useState(false);
 
-  // Lightbox States
+  // Lightbox / Modal States
   const [isLightboxOpen, setIsLightboxOpen] = useState(false);
   const [lightboxIndex, setLightboxIndex] = useState(0);
+  const [isMapModalOpen, setIsMapModalOpen] = useState(false);
 
-  // Navigation tab bar ref handlers for scroll interaction
-  const infoRef = useRef(null);
+  // Navigation tab bar refs
+  const overviewRef = useRef(null);
   const itineraryRef = useRef(null);
   const locationRef = useRef(null);
   const galleryRef = useRef(null);
+  const inclusionsRef = useRef(null);
 
   const scrollToSection = (elementRef) => {
     if (elementRef.current) {
-      const offset = 100;
+      const offset = 90;
       const elementPosition = elementRef.current.getBoundingClientRect().top + window.pageYOffset;
       window.scrollTo({
         top: elementPosition - offset,
@@ -377,7 +159,6 @@ export default function TourDetailPage({ params: paramsPromise }) {
         if (response && response.data && response.data.length > 0) {
           foundTour = response.data[0];
         } else if (currentLocale !== 'en') {
-          // Fallback pattern to English if localized details are missing
           const fallbackRes = await fetchFromStrapi('tours', `?locale=en&filters[slug][$eq]=${slug}&populate=*`);
           if (fallbackRes && fallbackRes.data && fallbackRes.data.length > 0) {
             foundTour = fallbackRes.data[0];
@@ -387,24 +168,14 @@ export default function TourDetailPage({ params: paramsPromise }) {
         // Apply local hardcoded fallback if Strapi returned nothing or is offline
         if (!foundTour) {
           const localList = fallbackLocalTours[currentLocale] || fallbackLocalTours['en'];
-          foundTour = localList.find(t => t.slug === slug) || null;
+          foundTour = localList.find(t => t.slug === slug) || fallbackDefaultTour;
         }
 
-        if (foundTour) {
-          setTour(foundTour);
-        } else {
-          setError(true);
-        }
+        setTour(foundTour);
       } catch (err) {
-        console.error("Failed to load tour details, falling back to local itineraries:", err);
-        const localList = fallbackLocalTours[currentLocale] || fallbackLocalTours['en'];
-        const foundTour = localList.find(t => t.slug === slug) || null;
-        if (foundTour) {
-          setTour(foundTour);
-        } else {
-          setError(true);
-        }
-      } finally {
+        console.error("Failed to load tour details, applying default fallback itinerary:", err);
+        setTour(fallbackDefaultTour);
+      } fontFinally: {
         setLoading(false);
       }
     }
@@ -419,55 +190,45 @@ export default function TourDetailPage({ params: paramsPromise }) {
         .map(img => img?.url ? getStrapiMedia(img.url) : null)
         .filter(url => url !== null);
     }
-    // Fallback if empty to avoid rendering an empty grid
     return [
-      "https://images.unsplash.com/photo-1539650116574-8efeb43e2750?q=80&w=600",
-      "https://images.unsplash.com/photo-1548013146-72479768bada?q=80&w=600",
-      "https://images.unsplash.com/photo-1489749798305-4fea3ae63d43?q=80&w=600",
-      "https://images.unsplash.com/photo-1504198453319-5ce911bafcde?q=80&w=600"
+      "/dest-chefchaouen.png",
+      "/assets/desert-luxury-1.png",
+      "/dest-marrakech.png",
+      "/assets/imperial-heritage.png",
+      "/dest-fes.png",
+      "/dest-atlas.png"
     ];
   }, [tour]);
 
   if (loading) {
     return (
-      <div className="flex flex-col items-center justify-center min-h-screen bg-white text-gray-400 font-sans">
-        <div className="w-10 h-10 border-2 border-orange-500 border-t-transparent animate-spin mb-4 rounded-full"></div>
-        <p className="text-[10px] uppercase tracking-[0.25em] font-extrabold text-gray-500">Loading Itinerary Blueprint...</p>
+      <div className="flex flex-col items-center justify-center min-h-screen bg-[#FDFBF7] text-gray-400 font-sans">
+        <div className="w-10 h-10 border-3 border-[#FF5B35] border-t-transparent animate-spin mb-4 rounded-full"></div>
+        <p className="text-xs uppercase tracking-[0.25em] font-extrabold text-gray-500">Loading Itinerary Blueprint...</p>
       </div>
     );
   }
 
-  if (error || !tour) {
-    return (
-      <div className="flex flex-col items-center justify-center min-h-screen bg-white text-gray-800 font-sans px-6 text-center">
-        <span className="text-4xl mb-4">🐪</span>
-        <h2 className="font-serif text-2xl font-bold mb-3">Destination Archive Delay</h2>
-        <p className="text-xs text-gray-400 mb-8 max-w-sm font-light leading-relaxed">
-          The private route planner is unable to sync details at this moment. Please return to the directory.
-        </p>
-        <Link href="/tours" className="bg-gradient-to-r from-orange-500 to-rose-500 text-white px-8 py-3.5 rounded-full text-xs font-bold tracking-widest uppercase transition-all duration-300 shadow">
-          Explore All Journeys
-        </Link>
-      </div>
-    );
-  }
-
-  const mainImageUrl = tour.mainImage?.url ? getStrapiMedia(tour.mainImage.url) : '/placeholder.png';
-  const safeItinerary = Array.isArray(tour.itinerary) ? tour.itinerary.filter(day => day !== null) : [];
+  const currentTour = tour || fallbackDefaultTour;
+  const mainImageUrl = currentTour.mainImage?.url ? getStrapiMedia(currentTour.mainImage.url) : '/hero-bg-v2.png';
+  const mapImageUrl = currentTour.mapImage?.url ? getStrapiMedia(currentTour.mapImage.url) : '/assets/morocco-route-map.png';
+  const safeItinerary = Array.isArray(currentTour.itinerary) && currentTour.itinerary.length > 0 
+    ? currentTour.itinerary 
+    : fallbackDefaultTour.itinerary;
 
   const handleBookNow = (e) => {
     e.preventDefault();
     if (!bookingForm.name || !bookingForm.email || !bookingForm.phone) {
-      alert("Please fill in Name, Email, and Phone fields.");
+      alert("Please fill in your Name, Email, and Phone Number.");
       return;
     }
-    const messageText = `Hi Morocco Vibe! I would like to book "${tour.title}". Here are my details:
+    const messageText = `Hi Morocco Vibe! I would like to book "${currentTour.title}". Here are my details:
 - Name: ${bookingForm.name}
 - Email: ${bookingForm.email}
 - Phone: ${bookingForm.phone}
-- Date: ${bookingForm.date}
-- Tickets: ${bookingForm.tickets}
-- Note: ${bookingForm.message}`;
+- Date: ${bookingForm.date || 'Flexible'}
+- Number of Travelers: ${bookingForm.travelers}
+- Note: ${bookingForm.message || 'None'}`;
 
     const whatsappUrl = `https://wa.me/212634332000?text=${encodeURIComponent(messageText)}`;
     const newWindow = window.open(whatsappUrl, '_blank');
@@ -482,426 +243,711 @@ export default function TourDetailPage({ params: paramsPromise }) {
     setTimeout(() => setBookingSuccess(false), 5000);
   };
 
+  const tourJsonLd = {
+    '@context': 'https://schema.org',
+    '@graph': [
+      {
+        '@type': 'TouristTrip',
+        '@id': `https://moroccovibe.com/tours/${slug}#trip`,
+        'name': currentTour.title,
+        'description': typeof currentTour.overview === 'string' ? currentTour.overview : currentTour.excerpt || currentTour.title,
+        'image': mainImageUrl.startsWith('http') ? mainImageUrl : `https://moroccovibe.com${mainImageUrl}`,
+        'touristType': currentTour.groupType || 'Private Tour',
+        'subTrip': safeItinerary.map((day, idx) => ({
+          '@type': 'TouristTrip',
+          'name': day.dayTitle || `Day ${idx + 1}`,
+          'description': typeof day.dayContent === 'string' ? day.dayContent : `Itinerary for ${day.dayTitle}`
+        })),
+        'provider': {
+          '@type': 'TravelAgency',
+          'name': 'Morocco Vibe',
+          'url': 'https://moroccovibe.com'
+        }
+      },
+      {
+        '@type': 'Product',
+        '@id': `https://moroccovibe.com/tours/${slug}#product`,
+        'name': currentTour.title,
+        'description': typeof currentTour.overview === 'string' ? currentTour.overview : currentTour.excerpt || currentTour.title,
+        'image': mainImageUrl.startsWith('http') ? mainImageUrl : `https://moroccovibe.com${mainImageUrl}`,
+        'offers': {
+          '@type': 'Offer',
+          'price': currentTour.price || 1290,
+          'priceCurrency': 'EUR',
+          'priceValidUntil': '2027-12-31',
+          'availability': 'https://schema.org/InStock',
+          'url': `https://moroccovibe.com/tours/${slug}`
+        },
+        'aggregateRating': {
+          '@type': 'AggregateRating',
+          'ratingValue': currentTour.rating || '5.0',
+          'reviewCount': currentTour.reviewsCount || 28,
+          'bestRating': '5',
+          'worstRating': '1'
+        }
+      }
+    ]
+  };
+
   return (
-    <div className="bg-[#FDFBF7] min-h-screen pb-28 font-sans text-gray-800 pt-0">
+    <div className="bg-[#FDFBF7] min-h-screen pb-28 font-sans text-gray-800">
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(tourJsonLd) }}
+      />
       
-      {/* 1. HERO BRAND BANNER ("Explore Landscapes") */}
-      <section className="relative h-[55vh] md:h-[65vh] w-full flex items-center justify-center bg-gray-900 px-6 pt-20 overflow-hidden">
+      {/* 1. TOP HERO BRAND BANNER */}
+      <section className="relative min-h-[480px] md:min-h-[540px] w-full flex items-end bg-gray-900 overflow-hidden pb-16 pt-24 px-4 sm:px-6 md:px-12">
         <div className="absolute inset-0 z-0">
           <SafeImage 
             src={mainImageUrl} 
-            alt={tour.title} 
-            className="w-full h-full object-cover scale-105 opacity-80" 
+            alt={currentTour.title} 
+            priority={true}
+            sizes="100vw"
+            className="w-full h-full object-cover scale-105 opacity-65" 
           />
-          <div className="absolute inset-0 bg-gradient-to-b from-black/50 via-black/25 to-[#FDFBF7]" />
+          <div className="absolute inset-0 bg-gradient-to-t from-gray-950 via-gray-900/40 to-black/30" />
         </div>
 
-        <div className="relative z-10 text-center max-w-4xl -mt-6">
-          <span className="text-[10px] uppercase font-extrabold tracking-[0.3em] text-white/90 mb-3 block">
-            EXPLORE
-          </span>
-          <motion.h1 
-            initial={{ opacity: 0, scale: 0.95 }}
-            animate={{ opacity: 1, scale: 1 }}
-            transition={{ duration: 0.8 }}
-            className="text-6xl sm:text-7xl md:text-[9rem] text-white font-normal leading-none drop-shadow-2xl select-none"
-            style={{ fontFamily: "'Alex Brush', 'Brush Script MT', cursive" }}
-          >
-            Landscapes
-          </motion.h1>
-        </div>
-      </section>
-
-      {/* 2. HORIZONTAL SECTION NAVIGATION TAB BAR */}
-      <section className="relative -mt-10 z-20 max-w-7xl mx-auto px-6">
-        <div className="bg-white border border-gray-150/70 p-4 md:p-6 shadow-xl rounded-2xl flex justify-center gap-4 md:gap-12 flex-wrap">
+        <div className="relative z-10 max-w-7xl mx-auto w-full">
           
-          <button 
-            onClick={() => scrollToSection(infoRef)}
-            className="flex items-center gap-2 text-[11px] font-extrabold uppercase tracking-widest text-gray-400 hover:text-orange-500 transition cursor-pointer"
-          >
-            <Info className="w-4 h-4 text-orange-500" />
-            <span>Information</span>
-          </button>
+          {/* Breadcrumbs */}
+          <nav className="flex items-center gap-2 text-xs text-white/80 font-medium mb-4 tracking-wide">
+            <Link href="/" className="hover:text-[#FF5B35] transition">Home</Link>
+            <ChevronRight className="w-3.5 h-3.5 text-white/50" />
+            <Link href="/tours" className="hover:text-[#FF5B35] transition">Tours</Link>
+            <ChevronRight className="w-3.5 h-3.5 text-white/50" />
+            <span className="text-white/60 truncate max-w-[200px] sm:max-w-xs">{currentTour.title}</span>
+          </nav>
 
-          <div className="w-[1px] h-6 bg-gray-100 hidden md:block" />
+          <div className="flex flex-col lg:flex-row lg:items-end justify-between gap-6">
+            
+            {/* Title & Metadata Badges */}
+            <div className="max-w-3xl space-y-4">
+              <motion.h1 
+                initial={{ opacity: 0, y: 15 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.6 }}
+                className="text-2xl sm:text-3xl md:text-5xl font-serif font-bold text-white leading-tight drop-shadow-md"
+              >
+                {currentTour.title}
+              </motion.h1>
 
-          <button 
-            onClick={() => scrollToSection(itineraryRef)}
-            className="flex items-center gap-2 text-[11px] font-extrabold uppercase tracking-widest text-gray-400 hover:text-orange-500 transition cursor-pointer"
-          >
-            <Calendar className="w-4 h-4 text-orange-500" />
-            <span>Tour Plan</span>
-          </button>
+              {/* Badges Row */}
+              <div className="flex flex-wrap items-center gap-3 pt-1">
+                <div className="flex items-center gap-2 bg-black/35 backdrop-blur-md border border-white/20 px-3.5 py-1.5 rounded-full text-xs font-semibold text-white">
+                  <Clock className="w-3.5 h-3.5 text-[#FF5B35]" />
+                  <span>{currentTour.duration || "10 Days / 9 Nights"}</span>
+                </div>
 
-          <div className="w-[1px] h-6 bg-gray-100 hidden md:block" />
+                <div className="flex items-center gap-2 bg-black/35 backdrop-blur-md border border-white/20 px-3.5 py-1.5 rounded-full text-xs font-semibold text-white">
+                  <Users className="w-3.5 h-3.5 text-[#FF5B35]" />
+                  <span>{currentTour.groupType || "Small Group Tour"}</span>
+                </div>
 
-          <button 
-            onClick={() => scrollToSection(locationRef)}
-            className="flex items-center gap-2 text-[11px] font-extrabold uppercase tracking-widest text-gray-400 hover:text-orange-500 transition cursor-pointer"
-          >
-            <Map className="w-4 h-4 text-orange-500" />
-            <span>Location</span>
-          </button>
-
-          <div className="w-[1px] h-6 bg-gray-100 hidden md:block" />
-
-          <button 
-            onClick={() => scrollToSection(galleryRef)}
-            className="flex items-center gap-2 text-[11px] font-extrabold uppercase tracking-widest text-gray-400 hover:text-orange-500 transition cursor-pointer"
-          >
-            <ImageIcon className="w-4 h-4 text-orange-500" />
-            <span>Gallery</span>
-          </button>
-
-        </div>
-      </section>
-
-      {/* 3. SPLIT MAIN GRID SECTION */}
-      <section className="py-20 px-6 max-w-7xl mx-auto" ref={infoRef}>
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 items-start">
-          
-          {/* LEFT MAIN INFORMATION FIELD (2/3 width) */}
-          <div className="lg:col-span-8 space-y-12 text-left">
-            <div>
-              <div className="flex flex-wrap items-baseline justify-between gap-4 mb-4">
-                <h1 className="font-serif text-3xl md:text-5xl font-bold text-gray-900 leading-tight">
-                  {tour.title}
-                </h1>
-                <div className="text-xl md:text-2xl font-extrabold text-orange-500 font-sans">
-                  {formatPrice(tour.price)} <span className="text-xs text-gray-400 font-normal">/ Per Couple</span>
+                <div className="flex items-center gap-2 bg-black/35 backdrop-blur-md border border-white/20 px-3.5 py-1.5 rounded-full text-xs font-semibold text-white">
+                  <Award className="w-3.5 h-3.5 text-[#FF5B35]" />
+                  <span>{currentTour.guideType || "Expert Local Guides"}</span>
                 </div>
               </div>
+            </div>
 
-              {/* Gold Stars Rating */}
-              <div className="flex items-center gap-1.5 text-xs text-orange-500 font-bold">
+            {/* Floating Price Card (Top Right in Hero) */}
+            <motion.div 
+              initial={{ opacity: 0, scale: 0.95 }}
+              animate={{ opacity: 1, scale: 1 }}
+              transition={{ duration: 0.5, delay: 0.2 }}
+              className="bg-white/95 backdrop-blur-md rounded-2xl p-5 shadow-2xl border border-white/60 min-w-[240px] text-left shrink-0"
+            >
+              <div className="flex items-baseline gap-1 mb-1">
+                <span className="text-3xl md:text-4xl font-extrabold text-[#FF5B35]">
+                  {formatPrice(currentTour.price || 1290)}
+                </span>
+                <span className="text-xs text-gray-500 font-normal">/ Per Person</span>
+              </div>
+
+              {/* Star Rating */}
+              <div className="flex items-center gap-1.5 text-xs text-[#FF5B35] font-semibold mt-1">
                 <div className="flex gap-0.5">
                   {[...Array(5)].map((_, i) => (
-                    <Star key={i} className="w-3.5 h-3.5 fill-orange-500 text-orange-500" />
+                    <Star key={i} className="w-4 h-4 fill-[#FF5B35] text-[#FF5B35]" />
                   ))}
                 </div>
-                <span className="text-gray-400 font-light">(2.8k reviews)</span>
+                <span className="text-gray-500 font-medium text-xs ml-1">
+                  ({currentTour.reviewsCount || 28} Reviews)
+                </span>
               </div>
-            </div>
-
-            {/* Overview Text Block */}
-            <div className="space-y-4 text-gray-500 text-xs md:text-sm font-light leading-relaxed">
-              {tour.overview && Array.isArray(tour.overview) ? (
-                tour.overview.map((block, idx) => (
-                  <p key={idx}>{block.children?.map(c => c.text).join(' ')}</p>
-                ))
-              ) : (
-                <p>{tour.overview || "Ex optio sequi et quos praesentium in nostrum labore nam rerum iusto aut magni nesciunt? Quo quidem neque iste expedita est dolo."}</p>
-              )}
-            </div>
-
-            {/* Inclusions and Exclusions side-by-side */}
-            <div className="border-t border-gray-150 pt-8">
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-8 pt-4">
-                
-                {/* Not Included (whatsNotIncluded) */}
-                <div className="space-y-4">
-                  <h4 className="font-extrabold text-orange-500 uppercase tracking-wider text-xs md:text-sm">Not Included</h4>
-                  <ul className="space-y-3">
-                    {tour.whatsNotIncluded && tour.whatsNotIncluded.length > 0 ? (
-                      tour.whatsNotIncluded.map((exc) => (
-                        <li key={exc.id} className="flex items-center gap-2.5 text-xs text-gray-500">
-                          <div className="w-4 h-4 rounded-full bg-red-50 flex items-center justify-center flex-shrink-0 text-red-500">
-                            ✕
-                          </div>
-                          <span>{exc.text}</span>
-                        </li>
-                      ))
-                    ) : (
-                      <>
-                        <li className="flex items-center gap-2.5 text-xs text-gray-500">
-                          <div className="w-4 h-4 rounded-full bg-red-50 flex items-center justify-center text-red-500">✕</div>
-                          <span>Gallery Ticket</span>
-                        </li>
-                        <li className="flex items-center gap-2.5 text-xs text-gray-500">
-                          <div className="w-4 h-4 rounded-full bg-red-50 flex items-center justify-center text-red-500">✕</div>
-                          <span>Lunch</span>
-                        </li>
-                      </>
-                    )}
-                  </ul>
-                </div>
-
-                {/* Included (whatsIncluded) */}
-                <div className="space-y-4">
-                  <h4 className="font-extrabold text-orange-500 uppercase tracking-wider text-xs md:text-sm">Included</h4>
-                  <ul className="space-y-3">
-                    {tour.whatsIncluded && tour.whatsIncluded.length > 0 ? (
-                      tour.whatsIncluded.map((inc) => (
-                        <li key={inc.id} className="flex items-center gap-2.5 text-xs text-gray-500">
-                          <div className="w-4 h-4 rounded-full bg-green-50 flex items-center justify-center flex-shrink-0 text-green-600">
-                            ✓
-                          </div>
-                          <span>{inc.text}</span>
-                        </li>
-                      ))
-                    ) : (
-                      <>
-                        <li className="flex items-center gap-2.5 text-xs text-gray-500">
-                          <div className="w-4 h-4 rounded-full bg-green-50 flex items-center justify-center text-green-600">✓</div>
-                          <span>5 Star Accommodations</span>
-                        </li>
-                        <li className="flex items-center gap-2.5 text-xs text-gray-500">
-                          <div className="w-4 h-4 rounded-full bg-green-50 flex items-center justify-center text-green-600">✓</div>
-                          <span>Airport Transfer</span>
-                        </li>
-                      </>
-                    )}
-                  </ul>
-                </div>
-
-              </div>
-            </div>
-
-            {/* Tour Plan Day-by-Day Accordions */}
-            {safeItinerary.length > 0 && (
-              <div className="border-t border-gray-150 pt-10 scroll-mt-24" ref={itineraryRef}>
-                <h3 className="font-serif text-2xl font-bold text-gray-900 mb-6">Tour Plan</h3>
-                <div className="space-y-4">
-                  {safeItinerary.map((day, idx) => {
-                    const isOpen = openDayIndex === idx;
-                    return (
-                      <div 
-                        key={day.id}
-                        className={`border rounded-2xl overflow-hidden transition-all duration-300 ${
-                          isOpen ? 'border-orange-500 bg-gray-50/10' : 'border-gray-150 bg-white'
-                        }`}
-                      >
-                        <div 
-                          onClick={() => setOpenDayIndex(isOpen ? -1 : idx)}
-                          className="p-5 flex items-center justify-between cursor-pointer select-none"
-                        >
-                          <div className="flex items-center gap-4">
-                            <span className={`text-[10px] font-extrabold uppercase tracking-widest px-3 py-1.5 rounded-lg ${
-                              isOpen ? 'bg-orange-500 text-white' : 'bg-orange-50 text-orange-500'
-                            }`}>
-                              {day.dayLabel || `Day ${idx + 1}`}
-                            </span>
-                            <h5 className="font-bold text-xs md:text-sm text-gray-900">{day.dayTitle}</h5>
-                          </div>
-                          <ChevronDown className={`w-4 h-4 text-gray-400 transition-transform duration-300 ${
-                            isOpen ? 'rotate-180 text-orange-500' : ''
-                          }`} />
-                        </div>
-
-                        <AnimatePresence initial={false}>
-                          {isOpen && (
-                            <motion.div 
-                              initial={{ height: 0, opacity: 0 }}
-                              animate={{ height: 'auto', opacity: 1 }}
-                              exit={{ height: 0, opacity: 0 }}
-                              className="border-t border-gray-100 bg-white"
-                            >
-                              <div className="p-5 text-xs md:text-sm text-gray-500 font-light leading-relaxed">
-                                {Array.isArray(day.dayContent) ? (
-                                  day.dayContent.map((block, bIdx) => (
-                                    <p key={bIdx} className="mb-2">{block.children?.map(c => c.text).join(' ')}</p>
-                                  ))
-                                ) : (
-                                  <p>{day.dayContent || "Itinerary activities detailed upon consultation."}</p>
-                                )}
-                              </div>
-                            </motion.div>
-                          )}
-                        </AnimatePresence>
-                      </div>
-                    );
-                  })}
-                </div>
-              </div>
-            )}
-
-            {/* Map Blueprint Section */}
-            {tour.mapImage?.url && (
-              <div className="border-t border-gray-150 pt-10 scroll-mt-24" ref={locationRef}>
-                <h3 className="font-serif text-2xl font-bold text-gray-900 mb-2">Location</h3>
-                <p className="text-xs text-gray-400 mb-6 font-light">
-                  Visual routing paths designed for comfort, luxury, and cultural immersion.
-                </p>
-                <div className="relative w-full h-[400px] bg-gray-50 border border-gray-100 rounded-3xl overflow-hidden shadow-sm group">
-                  <SafeImage 
-                    src={getStrapiMedia(tour.mapImage.url)} 
-                    alt="Tour Route Map" 
-                    className="w-full h-full object-cover group-hover:scale-103 transition-transform duration-700"
-                  />
-                </div>
-              </div>
-            )}
+            </motion.div>
 
           </div>
 
-          {/* RIGHT STICKY BOOKING CONCIERGE CARD (1/3 width) */}
-          <div className="lg:col-span-4 sticky top-28">
-            <div className="bg-white border border-gray-150/70 p-6 md:p-8 rounded-3xl shadow-xl">
-              <h3 className="font-serif text-2xl font-bold text-gray-900 mb-3">Book This Tour</h3>
-              <p className="text-gray-400 text-xs font-light leading-relaxed mb-6">
-                Ex optio sequi et quos praesentium in nostrum labore nam rerum iusto aut magni nesciunt? Quo quidem neque iste expedita est dolo.
+        </div>
+      </section>
+
+      {/* 2. TAB NAVIGATION BAR (OVERVIEW | TOUR PLAN | LOCATION | GALLERY | INCLUSIONS) */}
+      <section className="relative -mt-6 z-20 max-w-5xl mx-auto px-4">
+        <div className="bg-white rounded-2xl border border-gray-150/80 shadow-lg p-2.5 flex items-center justify-around gap-2 flex-wrap text-xs font-bold uppercase tracking-wider text-gray-600">
+          
+          <button 
+            onClick={() => scrollToSection(overviewRef)}
+            className="flex items-center gap-2 px-4 py-2.5 rounded-xl hover:bg-orange-50/70 hover:text-[#FF5B35] transition cursor-pointer text-gray-700 font-bold"
+          >
+            <Info className="w-4 h-4 text-[#FF5B35]" />
+            <span>OVERVIEW</span>
+          </button>
+
+          <div className="w-[1px] h-5 bg-gray-200 hidden sm:block" />
+
+          <button 
+            onClick={() => scrollToSection(itineraryRef)}
+            className="flex items-center gap-2 px-4 py-2.5 rounded-xl hover:bg-orange-50/70 hover:text-[#FF5B35] transition cursor-pointer text-gray-700 font-bold"
+          >
+            <Calendar className="w-4 h-4 text-[#FF5B35]" />
+            <span>TOUR PLAN</span>
+          </button>
+
+          <div className="w-[1px] h-5 bg-gray-200 hidden sm:block" />
+
+          <button 
+            onClick={() => scrollToSection(locationRef)}
+            className="flex items-center gap-2 px-4 py-2.5 rounded-xl hover:bg-orange-50/70 hover:text-[#FF5B35] transition cursor-pointer text-gray-700 font-bold"
+          >
+            <MapPin className="w-4 h-4 text-[#FF5B35]" />
+            <span>LOCATION</span>
+          </button>
+
+          <div className="w-[1px] h-5 bg-gray-200 hidden sm:block" />
+
+          <button 
+            onClick={() => scrollToSection(galleryRef)}
+            className="flex items-center gap-2 px-4 py-2.5 rounded-xl hover:bg-orange-50/70 hover:text-[#FF5B35] transition cursor-pointer text-gray-700 font-bold"
+          >
+            <ImageIcon className="w-4 h-4 text-[#FF5B35]" />
+            <span>GALLERY</span>
+          </button>
+
+          <div className="w-[1px] h-5 bg-gray-200 hidden sm:block" />
+
+          <button 
+            onClick={() => scrollToSection(inclusionsRef)}
+            className="flex items-center gap-2 px-4 py-2.5 rounded-xl hover:bg-orange-50/70 hover:text-[#FF5B35] transition cursor-pointer text-gray-700 font-bold"
+          >
+            <ShieldCheck className="w-4 h-4 text-[#FF5B35]" />
+            <span>INCLUSIONS</span>
+          </button>
+
+        </div>
+      </section>
+
+      {/* 3. MAIN SPLIT GRID LAYOUT */}
+      <section className="py-12 px-4 sm:px-6 md:px-8 max-w-7xl mx-auto">
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
+          
+          {/* LEFT COLUMN: OVERVIEW & TOUR PLAN (8 / 12 width) */}
+          <div className="lg:col-span-8 space-y-8 text-left">
+            
+            {/* OVERVIEW CARD */}
+            <div className="bg-white rounded-2xl border border-gray-150/70 p-6 md:p-8 shadow-sm space-y-6 scroll-mt-24" ref={overviewRef}>
+              
+              {/* Section Header with Orange Vertical Bar */}
+              <div className="flex items-center gap-3">
+                <span className="w-1.5 h-6 bg-[#FF5B35] rounded-full inline-block shrink-0"></span>
+                <h2 className="font-serif text-2xl md:text-3xl font-bold text-gray-900">Overview</h2>
+              </div>
+
+              {/* Overview Text Paragraphs */}
+              <div className="text-gray-600 text-sm leading-relaxed space-y-4 font-normal">
+                {currentTour.overview ? (
+                  typeof currentTour.overview === 'string' ? (
+                    currentTour.overview.split('\n\n').map((paragraph, idx) => (
+                      <p key={idx}>{paragraph}</p>
+                    ))
+                  ) : Array.isArray(currentTour.overview) ? (
+                    currentTour.overview.map((block, idx) => (
+                      <p key={idx}>{block.children?.map(c => c.text).join(' ')}</p>
+                    ))
+                  ) : (
+                    <p>{currentTour.overview}</p>
+                  )
+                ) : (
+                  <p>
+                    Planning 10 days in Morocco and wondering how to see the most in a limited time? This carefully designed 10-day in Morocco itinerary takes you through the country's highlights — from Marrakech and the Atlas Mountains to the Sahara Desert, Fés, Chefchaouen, Rabat, and Casablanca.
+                  </p>
+                )}
+              </div>
+
+              {/* 4 HIGHLIGHT FEATURE CARDS ROW */}
+              <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 p-5 rounded-2xl bg-[#FFFBF8] border border-orange-100/80 text-center my-6">
+                
+                {/* 1. Free Cancellation */}
+                <div className="flex flex-col items-center p-2 space-y-1.5">
+                  <div className="w-9 h-9 rounded-full bg-orange-100/70 flex items-center justify-center text-[#FF5B35]">
+                    <RotateCcw className="w-4 h-4" />
+                  </div>
+                  <h4 className="font-bold text-xs text-gray-900">Free Cancellation</h4>
+                  <p className="text-[11px] text-gray-400 font-medium">Up to 7 days</p>
+                </div>
+
+                {/* 2. Best Price Guarantee */}
+                <div className="flex flex-col items-center p-2 space-y-1.5">
+                  <div className="w-9 h-9 rounded-full bg-orange-100/70 flex items-center justify-center text-[#FF5B35]">
+                    <Tag className="w-4 h-4" />
+                  </div>
+                  <h4 className="font-bold text-xs text-gray-900">Best Price Guarantee</h4>
+                  <p className="text-[11px] text-gray-400 font-medium">No hidden fees</p>
+                </div>
+
+                {/* 3. Instant Confirmation */}
+                <div className="flex flex-col items-center p-2 space-y-1.5">
+                  <div className="w-9 h-9 rounded-full bg-orange-100/70 flex items-center justify-center text-[#FF5B35]">
+                    <Zap className="w-4 h-4" />
+                  </div>
+                  <h4 className="font-bold text-xs text-gray-900">Instant Confirmation</h4>
+                  <p className="text-[11px] text-gray-400 font-medium">Book with confidence</p>
+                </div>
+
+                {/* 4. 24/7 Support */}
+                <div className="flex flex-col items-center p-2 space-y-1.5">
+                  <div className="w-9 h-9 rounded-full bg-orange-100/70 flex items-center justify-center text-[#FF5B35]">
+                    <Headphones className="w-4 h-4" />
+                  </div>
+                  <h4 className="font-bold text-xs text-gray-900">24/7 Support</h4>
+                  <p className="text-[11px] text-gray-400 font-medium">We're here to help</p>
+                </div>
+
+              </div>
+
+              {/* NOT INCLUDED & INCLUDED SIDE-BY-SIDE LISTS */}
+              <div className="pt-4 border-t border-gray-150 scroll-mt-24" ref={inclusionsRef}>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+                  
+                  {/* NOT INCLUDED */}
+                  <div className="space-y-4">
+                    <h3 className="font-bold text-base text-gray-900">Not Included</h3>
+                    <ul className="space-y-3">
+                      {currentTour.whatsNotIncluded && currentTour.whatsNotIncluded.length > 0 ? (
+                        currentTour.whatsNotIncluded.map((item, idx) => (
+                          <li key={item.id || idx} className="flex items-start gap-3 text-xs text-gray-600 leading-relaxed">
+                            <span className="w-4 h-4 rounded-full bg-rose-50 border border-rose-200 text-rose-500 flex items-center justify-center text-[10px] font-bold shrink-0 mt-0.5">
+                              ✕
+                            </span>
+                            <span>{item.text}</span>
+                          </li>
+                        ))
+                      ) : (
+                        fallbackDefaultTour.whatsNotIncluded.map((item) => (
+                          <li key={item.id} className="flex items-start gap-3 text-xs text-gray-600 leading-relaxed">
+                            <span className="w-4 h-4 rounded-full bg-rose-50 border border-rose-200 text-rose-500 flex items-center justify-center text-[10px] font-bold shrink-0 mt-0.5">
+                              ✕
+                            </span>
+                            <span>{item.text}</span>
+                          </li>
+                        ))
+                      )}
+                    </ul>
+                  </div>
+
+                  {/* INCLUDED */}
+                  <div className="space-y-4">
+                    <h3 className="font-bold text-base text-gray-900">Included</h3>
+                    <ul className="space-y-3">
+                      {currentTour.whatsIncluded && currentTour.whatsIncluded.length > 0 ? (
+                        currentTour.whatsIncluded.map((item, idx) => (
+                          <li key={item.id || idx} className="flex items-start gap-3 text-xs text-gray-600 leading-relaxed">
+                            <span className="w-4 h-4 rounded-full bg-emerald-50 border border-emerald-200 text-emerald-600 flex items-center justify-center text-[10px] font-bold shrink-0 mt-0.5">
+                              ✓
+                            </span>
+                            <span>{item.text}</span>
+                          </li>
+                        ))
+                      ) : (
+                        fallbackDefaultTour.whatsIncluded.map((item) => (
+                          <li key={item.id} className="flex items-start gap-3 text-xs text-gray-600 leading-relaxed">
+                            <span className="w-4 h-4 rounded-full bg-emerald-50 border border-emerald-200 text-emerald-600 flex items-center justify-center text-[10px] font-bold shrink-0 mt-0.5">
+                              ✓
+                            </span>
+                            <span>{item.text}</span>
+                          </li>
+                        ))
+                      )}
+                    </ul>
+                  </div>
+
+                </div>
+              </div>
+
+            </div>
+
+            {/* TOUR PLAN CARD (ACCORDION DAY-BY-DAY ITINERARY) */}
+            <div className="bg-white rounded-2xl border border-gray-150/70 p-6 md:p-8 shadow-sm space-y-6 scroll-mt-24" ref={itineraryRef}>
+              
+              {/* Header with Orange Bar */}
+              <div className="flex items-center gap-3">
+                <span className="w-1.5 h-6 bg-[#FF5B35] rounded-full inline-block shrink-0"></span>
+                <h2 className="font-serif text-2xl md:text-3xl font-bold text-gray-900">Tour Plan</h2>
+              </div>
+
+              {/* Accordion Items */}
+              <div className="space-y-3">
+                {safeItinerary.map((day, idx) => {
+                  const isOpen = openDayIndex === idx;
+                  return (
+                    <div 
+                      key={day.id || idx}
+                      className={`border rounded-xl transition-all duration-300 overflow-hidden ${
+                        isOpen 
+                          ? 'border-orange-300 bg-orange-50/10 shadow-xs' 
+                          : 'border-gray-200 hover:border-gray-300 bg-white'
+                      }`}
+                    >
+                      <button 
+                        type="button"
+                        onClick={() => setOpenDayIndex(isOpen ? -1 : idx)}
+                        className="w-full p-4 flex items-center justify-between gap-4 text-left cursor-pointer select-none"
+                      >
+                        <div className="flex items-center gap-3.5">
+                          <span className={`text-[11px] font-extrabold uppercase tracking-wider px-3 py-1.5 rounded-lg shrink-0 ${
+                            isOpen ? 'bg-[#FF5B35] text-white' : 'bg-orange-50 text-[#FF5B35]'
+                          }`}>
+                            {day.dayLabel || `DAY ${idx + 1}`}
+                          </span>
+                          <h4 className="font-bold text-xs sm:text-sm text-gray-900">
+                            {day.dayTitle || day.title}
+                          </h4>
+                        </div>
+                        <ChevronDown className={`w-4 h-4 text-gray-400 shrink-0 transition-transform duration-300 ${
+                          isOpen ? 'rotate-180 text-[#FF5B35]' : ''
+                        }`} />
+                      </button>
+
+                      <AnimatePresence initial={false}>
+                        {isOpen && (
+                          <motion.div 
+                            initial={{ height: 0, opacity: 0 }}
+                            animate={{ height: 'auto', opacity: 1 }}
+                            exit={{ height: 0, opacity: 0 }}
+                            transition={{ duration: 0.25 }}
+                            className="border-t border-gray-100 bg-white"
+                          >
+                            <div className="p-4 text-xs sm:text-sm text-gray-600 leading-relaxed font-normal">
+                              {typeof day.dayContent === 'string' ? (
+                                <p>{day.dayContent}</p>
+                              ) : Array.isArray(day.dayContent) ? (
+                                day.dayContent.map((block, bIdx) => (
+                                  <p key={bIdx} className="mb-2">{block.children?.map(c => c.text).join(' ')}</p>
+                                ))
+                              ) : (
+                                <p>{day.description || day.dayContent || "Full detailed activities and highlights provided upon booking orientation."}</p>
+                              )}
+                            </div>
+                          </motion.div>
+                        )}
+                      </AnimatePresence>
+                    </div>
+                  );
+                })}
+              </div>
+
+            </div>
+
+          </div>
+
+          {/* RIGHT COLUMN: BOOKING FORM, MAP & ROUTE, GALLERY (4 / 12 width) */}
+          <div className="lg:col-span-4 space-y-6 lg:sticky lg:top-24">
+            
+            {/* BOOK THIS TOUR CARD */}
+            <div className="bg-white rounded-2xl border border-gray-150/70 p-6 md:p-7 shadow-xl space-y-5">
+              
+              {/* Header with Orange Bar */}
+              <div className="flex items-center gap-3">
+                <span className="w-1.5 h-6 bg-[#FF5B35] rounded-full inline-block shrink-0"></span>
+                <h3 className="font-serif text-2xl font-bold text-gray-900">Book This Tour</h3>
+              </div>
+
+              <p className="text-gray-500 text-xs leading-relaxed font-normal">
+                It's quick, easy & secure. Reserve your spot now and start your adventure!
               </p>
 
               {/* Status Alert */}
               <AnimatePresence>
                 {bookingSuccess && (
                   <motion.div 
-                    initial={{ opacity: 0, y: -10 }}
+                    initial={{ opacity: 0, y: -8 }}
                     animate={{ opacity: 1, y: 0 }}
-                    exit={{ opacity: 0, y: -10 }}
-                    className="bg-green-50 border border-green-200 text-green-800 text-[11px] font-medium p-3 rounded-xl mb-4 flex items-center gap-2"
+                    exit={{ opacity: 0, y: -8 }}
+                    className="bg-emerald-50 border border-emerald-200 text-emerald-800 text-[11px] font-medium p-3 rounded-xl flex items-center gap-2"
                   >
-                    <Check className="w-4 h-4 text-green-600" />
-                    <span>Selected Dates Available! Proceed with Book Now.</span>
+                    <Check className="w-4 h-4 text-emerald-600 shrink-0" />
+                    <span>Selected Dates Available! Click Book Now below.</span>
                   </motion.div>
                 )}
               </AnimatePresence>
 
-              <form onSubmit={handleBookNow} className="space-y-4">
-                <input 
-                  type="text" 
-                  required
-                  placeholder="Name" 
-                  value={bookingForm.name}
-                  onChange={(e) => setBookingForm({...bookingForm, name: e.target.value})}
-                  className="w-full bg-gray-50/50 border border-gray-200 rounded-xl px-4 py-3 text-xs outline-none focus:border-orange-500 transition-colors"
-                />
+              {/* FORM FIELDS WITH ICONS */}
+              <form onSubmit={handleBookNow} className="space-y-3.5">
+                
+                {/* 1. Name */}
+                <div className="relative">
+                  <User className="w-4 h-4 text-gray-400 absolute left-3.5 top-3.5 pointer-events-none" />
+                  <input 
+                    type="text" 
+                    required
+                    placeholder="Your Name" 
+                    value={bookingForm.name}
+                    onChange={(e) => setBookingForm({...bookingForm, name: e.target.value})}
+                    className="w-full bg-gray-50/60 border border-gray-200 rounded-xl pl-10 pr-4 py-3 text-xs outline-none focus:border-[#FF5B35] focus:bg-white transition-colors"
+                  />
+                </div>
 
-                <input 
-                  type="email" 
-                  required
-                  placeholder="Email" 
-                  value={bookingForm.email}
-                  onChange={(e) => setBookingForm({...bookingForm, email: e.target.value})}
-                  className="w-full bg-gray-50/50 border border-gray-200 rounded-xl px-4 py-3 text-xs outline-none focus:border-orange-500 transition-colors"
-                />
+                {/* 2. Email Address */}
+                <div className="relative">
+                  <Mail className="w-4 h-4 text-gray-400 absolute left-3.5 top-3.5 pointer-events-none" />
+                  <input 
+                    type="email" 
+                    required
+                    placeholder="Email Address" 
+                    value={bookingForm.email}
+                    onChange={(e) => setBookingForm({...bookingForm, email: e.target.value})}
+                    className="w-full bg-gray-50/60 border border-gray-200 rounded-xl pl-10 pr-4 py-3 text-xs outline-none focus:border-[#FF5B35] focus:bg-white transition-colors"
+                  />
+                </div>
 
-                <input 
-                  type="email" 
-                  required
-                  placeholder="Confirm Email" 
-                  value={bookingForm.confirmEmail}
-                  onChange={(e) => setBookingForm({...bookingForm, confirmEmail: e.target.value})}
-                  className="w-full bg-gray-50/50 border border-gray-200 rounded-xl px-4 py-3 text-xs outline-none focus:border-orange-500 transition-colors"
-                />
+                {/* 3. Phone Number */}
+                <div className="relative">
+                  <Phone className="w-4 h-4 text-gray-400 absolute left-3.5 top-3.5 pointer-events-none" />
+                  <input 
+                    type="tel" 
+                    required
+                    placeholder="Phone Number" 
+                    value={bookingForm.phone}
+                    onChange={(e) => setBookingForm({...bookingForm, phone: e.target.value})}
+                    className="w-full bg-gray-50/60 border border-gray-200 rounded-xl pl-10 pr-4 py-3 text-xs outline-none focus:border-[#FF5B35] focus:bg-white transition-colors"
+                  />
+                </div>
 
-                <input 
-                  type="text" 
-                  required
-                  placeholder="Phone" 
-                  value={bookingForm.phone}
-                  onChange={(e) => setBookingForm({...bookingForm, phone: e.target.value})}
-                  className="w-full bg-gray-50/50 border border-gray-200 rounded-xl px-4 py-3 text-xs outline-none focus:border-orange-500 transition-colors"
-                />
+                {/* 4. Travel Date */}
+                <div className="relative">
+                  <Calendar className="w-4 h-4 text-gray-400 absolute left-3.5 top-3.5 pointer-events-none" />
+                  <input 
+                    type="date" 
+                    placeholder="Travel Date" 
+                    value={bookingForm.date}
+                    onChange={(e) => setBookingForm({...bookingForm, date: e.target.value})}
+                    className="w-full bg-gray-50/60 border border-gray-200 rounded-xl pl-10 pr-4 py-3 text-xs outline-none focus:border-[#FF5B35] focus:bg-white transition-colors text-gray-700"
+                  />
+                </div>
 
-                <input 
-                  type="date" 
-                  required
-                  value={bookingForm.date}
-                  onChange={(e) => setBookingForm({...bookingForm, date: e.target.value})}
-                  className="w-full bg-gray-50/50 border border-gray-200 rounded-xl px-4 py-3 text-xs outline-none focus:border-orange-500 transition-colors text-gray-400"
-                />
+                {/* 5. Number of Travelers */}
+                <div className="relative">
+                  <Users className="w-4 h-4 text-gray-400 absolute left-3.5 top-3.5 pointer-events-none" />
+                  <select 
+                    value={bookingForm.travelers}
+                    onChange={(e) => setBookingForm({...bookingForm, travelers: e.target.value})}
+                    className="w-full bg-gray-50/60 border border-gray-200 rounded-xl pl-10 pr-4 py-3 text-xs outline-none focus:border-[#FF5B35] focus:bg-white transition-colors text-gray-700 appearance-none"
+                  >
+                    <option value="1">1 Traveler</option>
+                    <option value="2">2 Travelers (Couple)</option>
+                    <option value="3">3 Travelers</option>
+                    <option value="4">4 Travelers</option>
+                    <option value="5">5+ Travelers (Group)</option>
+                  </select>
+                  <ChevronDown className="w-4 h-4 text-gray-400 absolute right-3.5 top-3.5 pointer-events-none" />
+                </div>
 
-                <input 
-                  type="number" 
-                  min="1" 
-                  placeholder="Number of ticket" 
-                  value={bookingForm.tickets}
-                  onChange={(e) => setBookingForm({...bookingForm, tickets: e.target.value})}
-                  className="w-full bg-gray-50/50 border border-gray-200 rounded-xl px-4 py-3 text-xs outline-none focus:border-orange-500 transition-colors"
-                />
-
+                {/* 6. Message */}
                 <textarea 
                   rows="3" 
-                  placeholder="Message" 
+                  placeholder="Your Message (Optional)" 
                   value={bookingForm.message}
                   onChange={(e) => setBookingForm({...bookingForm, message: e.target.value})}
-                  className="w-full bg-gray-50/50 border border-gray-200 rounded-xl px-4 py-3 text-xs outline-none focus:border-orange-500 transition-colors resize-none"
+                  className="w-full bg-gray-50/60 border border-gray-200 rounded-xl p-3.5 text-xs outline-none focus:border-[#FF5B35] focus:bg-white transition-colors resize-none"
                 />
 
-                {/* Dual-Action Buttons */}
-                <div className="pt-2 space-y-3">
+                {/* Action Buttons */}
+                <div className="pt-2 space-y-2.5">
                   <button 
                     type="button"
                     onClick={handleCheckAvailability}
-                    className="w-full bg-gray-900 hover:bg-black text-white py-3.5 rounded-full text-xs font-bold tracking-widest uppercase transition-all duration-300 shadow cursor-pointer text-center"
+                    className="w-full bg-[#1E293B] hover:bg-[#0F172A] text-white py-3 rounded-xl text-xs font-bold tracking-wider uppercase transition-all duration-200 shadow cursor-pointer text-center"
                   >
-                    Check Availability
+                    CHECK AVAILABILITY
                   </button>
 
                   <button 
                     type="submit"
-                    className="w-full bg-gradient-to-r from-orange-500 to-rose-500 hover:from-orange-600 hover:to-rose-600 text-white py-3.5 rounded-full text-xs font-bold tracking-widest uppercase transition-all duration-300 shadow-md hover:shadow-lg shadow-orange-500/10 cursor-pointer text-center"
+                    className="w-full bg-gradient-to-r from-[#FF5B35] to-[#FF3838] hover:from-[#E04B28] hover:to-[#E02B2B] text-white py-3.5 rounded-xl text-xs font-bold tracking-wider uppercase transition-all duration-200 shadow-md hover:shadow-lg shadow-orange-500/20 cursor-pointer text-center"
                   >
-                    Book Now
+                    BOOK NOW
                   </button>
                 </div>
 
               </form>
+
             </div>
-          </div>
 
-        </div>
-      </section>
+            {/* MAP & ROUTE CARD */}
+            <div className="bg-white rounded-2xl border border-gray-150/70 p-6 shadow-sm space-y-4 scroll-mt-24" ref={locationRef}>
+              
+              {/* Header with Orange Bar */}
+              <div className="flex items-center gap-3">
+                <span className="w-1.5 h-6 bg-[#FF5B35] rounded-full inline-block shrink-0"></span>
+                <h3 className="font-serif text-xl font-bold text-gray-900">Map & Route</h3>
+              </div>
 
-      {/* 4. LOOKBOOK GALLERY DISPLAY GRID ("From our gallery") */}
-      <section className="py-20 px-6 max-w-7xl mx-auto border-t border-gray-100 scroll-mt-24" ref={galleryRef}>
-        <div className="space-y-8">
-          <div>
-            <h2 className="font-serif text-3xl md:text-5xl font-bold text-gray-900 mb-2">From our gallery</h2>
-            <p className="text-gray-400 text-xs md:text-sm font-light leading-relaxed max-w-xl">
-              Visual snapshots from our curated private itineraries and premium expeditions.
-            </p>
-          </div>
-
-          {/* 4-Column Gallery Image Grid */}
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-            {galleryImages.slice(0, 8).map((imgUrl, index) => (
-              <motion.div 
-                key={index}
-                whileHover={{ scale: 1.03 }}
-                onClick={() => { setLightboxIndex(index); setIsLightboxOpen(true); }}
-                className="aspect-square rounded-2xl overflow-hidden bg-gray-50 border border-gray-100 shadow-sm cursor-pointer relative group"
+              {/* Map Preview Image */}
+              <div 
+                onClick={() => setIsMapModalOpen(true)}
+                className="relative w-full h-[210px] bg-amber-50/40 rounded-xl overflow-hidden border border-gray-200 group cursor-pointer shadow-xs"
               >
                 <SafeImage 
-                  src={imgUrl} 
-                  alt={`Gallery asset ${index + 1}`}
-                  className="w-full h-full object-cover group-hover:brightness-95 transition"
+                  src={mapImageUrl} 
+                  alt="Morocco Tour Route Map" 
+                  className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" 
                 />
                 <div className="absolute inset-0 bg-black/10 opacity-0 group-hover:opacity-100 transition flex items-center justify-center">
-                  <ImageIcon className="w-5 h-5 text-white" />
+                  <span className="bg-white/90 backdrop-blur-xs text-gray-900 text-xs font-bold px-3 py-1.5 rounded-full shadow">
+                    Click to Enlarge Map
+                  </span>
                 </div>
-              </motion.div>
-            ))}
+              </div>
+
+              <p className="text-[11px] text-gray-400 font-normal leading-normal">
+                This is a sample itinerary and may be adjusted based on your preferences.
+              </p>
+
+              {/* SEE FULL MAP BUTTON */}
+              <button 
+                type="button"
+                onClick={() => setIsMapModalOpen(true)}
+                className="w-full border border-orange-200 text-[#FF5B35] hover:bg-orange-50 font-bold text-xs uppercase tracking-wider py-2.5 px-4 rounded-xl flex items-center justify-center gap-1.5 transition cursor-pointer"
+              >
+                <span>SEE FULL MAP</span>
+                <ChevronRight className="w-3.5 h-3.5" />
+              </button>
+
+            </div>
+
+            {/* GALLERY CARD */}
+            <div className="bg-white rounded-2xl border border-gray-150/70 p-6 shadow-sm space-y-4 scroll-mt-24" ref={galleryRef}>
+              
+              {/* Header with Subtitle Link */}
+              <div className="flex items-center justify-between gap-2">
+                <div className="flex items-center gap-3">
+                  <span className="w-1.5 h-6 bg-[#FF5B35] rounded-full inline-block shrink-0"></span>
+                  <h3 className="font-serif text-xl font-bold text-gray-900">Gallery</h3>
+                </div>
+                <button 
+                  onClick={() => { setLightboxIndex(0); setIsLightboxOpen(true); }}
+                  className="text-[11px] text-gray-400 hover:text-[#FF5B35] font-medium transition cursor-pointer"
+                >
+                  View more photos
+                </button>
+              </div>
+
+              {/* 6 Thumbnail Grid (2 rows x 3 columns) */}
+              <div className="grid grid-cols-3 gap-2.5">
+                {galleryImages.slice(0, 6).map((imgUrl, index) => (
+                  <div 
+                    key={index}
+                    onClick={() => { setLightboxIndex(index); setIsLightboxOpen(true); }}
+                    className="aspect-square rounded-xl overflow-hidden bg-gray-100 border border-gray-100 relative group cursor-pointer shadow-xs"
+                  >
+                    <SafeImage 
+                      src={imgUrl} 
+                      alt={`Tour gallery photo ${index + 1}`}
+                      className="w-full h-full object-cover group-hover:scale-108 transition-transform duration-300"
+                    />
+                    <div className="absolute inset-0 bg-black/20 opacity-0 group-hover:opacity-100 transition flex items-center justify-center">
+                      <ImageIcon className="w-4 h-4 text-white" />
+                    </div>
+                  </div>
+                ))}
+              </div>
+
+              {/* SEE FULL GALLERY BUTTON */}
+              <button 
+                type="button"
+                onClick={() => { setLightboxIndex(0); setIsLightboxOpen(true); }}
+                className="w-full border border-orange-200 text-[#FF5B35] hover:bg-orange-50 font-bold text-xs uppercase tracking-wider py-2.5 px-4 rounded-xl flex items-center justify-center gap-1.5 transition cursor-pointer"
+              >
+                <span>SEE FULL GALLERY</span>
+                <ChevronRight className="w-3.5 h-3.5" />
+              </button>
+
+            </div>
+
           </div>
+
         </div>
       </section>
 
-      {/* 5. FULLSCREEN INTERACTIVE LIGHTBOX OVERLAY */}
+      {/* 4. MAP MODAL OVERLAY */}
+      <AnimatePresence>
+        {isMapModalOpen && (
+          <motion.div 
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 z-50 bg-black/80 backdrop-blur-sm flex items-center justify-center p-4"
+            onClick={() => setIsMapModalOpen(false)}
+          >
+            <div 
+              className="bg-white rounded-3xl max-w-4xl w-full p-6 relative overflow-hidden shadow-2xl space-y-4"
+              onClick={(e) => e.stopPropagation()}
+            >
+              <div className="flex items-center justify-between border-b border-gray-100 pb-4">
+                <div className="flex items-center gap-3">
+                  <span className="w-1.5 h-6 bg-[#FF5B35] rounded-full inline-block"></span>
+                  <h3 className="font-serif text-xl font-bold text-gray-900">Interactive Tour Route Map</h3>
+                </div>
+                <button 
+                  onClick={() => setIsMapModalOpen(false)}
+                  className="p-2 text-gray-400 hover:text-gray-900 transition rounded-full hover:bg-gray-100 cursor-pointer"
+                >
+                  <CloseIcon className="w-5 h-5" />
+                </button>
+              </div>
+
+              <div className="relative w-full h-[60vh] bg-amber-50/20 rounded-2xl overflow-hidden border border-gray-200">
+                <SafeImage 
+                  src={mapImageUrl} 
+                  alt="Morocco Full Route Map" 
+                  className="w-full h-full object-contain" 
+                />
+              </div>
+
+              <p className="text-xs text-gray-500 text-center font-normal">
+                Route includes: Marrakech → High Atlas (Ait Ben Haddou) → Merzouga (Erg Chebbi) → Midelt → Fes → Chefchaouen → Rabat → Casablanca
+              </p>
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
+      {/* 5. LIGHTBOX GALLERY SLIDER OVERLAY */}
       <AnimatePresence>
         {isLightboxOpen && (
           <motion.div 
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
-            className="fixed inset-0 z-50 bg-black/95 backdrop-blur-md flex flex-col items-center justify-center select-none"
+            className="fixed inset-0 z-50 bg-black/95 backdrop-blur-md flex flex-col items-center justify-center select-none p-4"
             onClick={() => setIsLightboxOpen(false)}
           >
             {/* Close Button */}
             <button 
-              className="absolute top-6 right-6 text-white/70 hover:text-white transition bg-white/5 hover:bg-white/10 p-3 rounded-full cursor-pointer"
+              className="absolute top-6 right-6 text-white/70 hover:text-white transition bg-white/10 hover:bg-white/20 p-3 rounded-full cursor-pointer z-50"
               onClick={() => setIsLightboxOpen(false)}
             >
               <CloseIcon className="w-5 h-5" />
             </button>
 
             {/* Slider Content */}
-            <div className="relative max-w-5xl w-full max-h-[75vh] px-4 flex items-center justify-center">
+            <div className="relative max-w-5xl w-full max-h-[78vh] flex items-center justify-center">
               
               {galleryImages.length > 1 && (
                 <button 
-                  className="absolute left-6 bg-white/10 hover:bg-white/20 text-white p-4 rounded-full transition active:scale-95 z-20 cursor-pointer"
+                  className="absolute left-4 bg-white/10 hover:bg-white/25 text-white p-3.5 rounded-full transition active:scale-95 z-20 cursor-pointer"
                   onClick={(e) => { e.stopPropagation(); setLightboxIndex((prev) => (prev - 1 + galleryImages.length) % galleryImages.length); }}
                 >
                   ‹
@@ -911,13 +957,13 @@ export default function TourDetailPage({ params: paramsPromise }) {
               <img 
                 src={galleryImages[lightboxIndex]} 
                 alt={`Lightbox image ${lightboxIndex + 1}`}
-                className="max-w-full max-h-[75vh] object-contain shadow-2xl"
+                className="max-w-full max-h-[75vh] object-contain shadow-2xl rounded-lg"
                 onClick={(e) => e.stopPropagation()} 
               />
 
               {galleryImages.length > 1 && (
                 <button 
-                  className="absolute right-6 bg-white/10 hover:bg-white/20 text-white p-4 rounded-full transition active:scale-95 z-20 cursor-pointer"
+                  className="absolute right-4 bg-white/10 hover:bg-white/25 text-white p-3.5 rounded-full transition active:scale-95 z-20 cursor-pointer"
                   onClick={(e) => { e.stopPropagation(); setLightboxIndex((prev) => (prev + 1) % galleryImages.length); }}
                 >
                   ›
@@ -927,7 +973,7 @@ export default function TourDetailPage({ params: paramsPromise }) {
             </div>
 
             {/* Counter */}
-            <div className="mt-6 text-white/40 text-[10px] font-bold tracking-widest uppercase">
+            <div className="mt-4 text-white/50 text-xs font-bold tracking-widest uppercase">
               {lightboxIndex + 1} / {galleryImages.length}
             </div>
 
