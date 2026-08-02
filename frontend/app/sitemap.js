@@ -1,7 +1,7 @@
 export const revalidate = 3600; // Revalidate sitemap every 1 hour
 
 export default async function sitemap() {
-  const baseUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://moroccovibe.com';
+  const baseUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://moroccovibetours.com';
   const strapiUrl = process.env.NEXT_PUBLIC_API_URL || process.env.NEXT_PUBLIC_STRAPI_API_URL || 'http://localhost:1337';
 
   // 1. Static Canonical Routes

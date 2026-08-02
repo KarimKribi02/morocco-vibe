@@ -248,10 +248,10 @@ export default function TourDetailPage({ params: paramsPromise }) {
     '@graph': [
       {
         '@type': 'TouristTrip',
-        '@id': `https://moroccovibe.com/tours/${slug}#trip`,
+        '@id': `https://moroccovibetours.com/tours/${slug}#trip`,
         'name': currentTour.title,
         'description': typeof currentTour.overview === 'string' ? currentTour.overview : currentTour.excerpt || currentTour.title,
-        'image': mainImageUrl.startsWith('http') ? mainImageUrl : `https://moroccovibe.com${mainImageUrl}`,
+        'image': mainImageUrl.startsWith('http') ? mainImageUrl : `https://moroccovibetours.com${mainImageUrl}`,
         'touristType': currentTour.groupType || 'Private Tour',
         'subTrip': safeItinerary.map((day, idx) => ({
           '@type': 'TouristTrip',
@@ -261,22 +261,22 @@ export default function TourDetailPage({ params: paramsPromise }) {
         'provider': {
           '@type': 'TravelAgency',
           'name': 'Morocco Vibe',
-          'url': 'https://moroccovibe.com'
+          'url': 'https://moroccovibetours.com'
         }
       },
       {
         '@type': 'Product',
-        '@id': `https://moroccovibe.com/tours/${slug}#product`,
+        '@id': `https://moroccovibetours.com/tours/${slug}#product`,
         'name': currentTour.title,
         'description': typeof currentTour.overview === 'string' ? currentTour.overview : currentTour.excerpt || currentTour.title,
-        'image': mainImageUrl.startsWith('http') ? mainImageUrl : `https://moroccovibe.com${mainImageUrl}`,
+        'image': mainImageUrl.startsWith('http') ? mainImageUrl : `https://moroccovibetours.com${mainImageUrl}`,
         'offers': {
           '@type': 'Offer',
           'price': currentTour.price || 1290,
           'priceCurrency': 'EUR',
           'priceValidUntil': '2027-12-31',
           'availability': 'https://schema.org/InStock',
-          'url': `https://moroccovibe.com/tours/${slug}`
+          'url': `https://moroccovibetours.com/tours/${slug}`
         },
         'aggregateRating': {
           '@type': 'AggregateRating',

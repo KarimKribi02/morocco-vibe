@@ -20,7 +20,7 @@ const fontSerif = Playfair_Display({
   display: "swap",
 });
 
-const baseUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://moroccovibe.com';
+const baseUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://moroccovibetours.com';
 const gaId = process.env.NEXT_PUBLIC_GA_ID;
 
 export const viewport = {

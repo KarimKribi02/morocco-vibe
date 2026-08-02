@@ -300,8 +300,8 @@ export default function ToursPage() {
       'item': {
         '@type': 'Product',
         'name': t.title,
-        'url': `https://moroccovibe.com/tours/${t.slug}`,
-        'image': typeof t.image === 'string' && t.image.startsWith('http') ? t.image : `https://moroccovibe.com${t.image || '/assets/desert-luxury-1.png'}`,
+        'url': `https://moroccovibetours.com/tours/${t.slug}`,
+        'image': typeof t.image === 'string' && t.image.startsWith('http') ? t.image : `https://moroccovibetours.com${t.image || '/assets/desert-luxury-1.png'}`,
         'offers': {
           '@type': 'Offer',
           'price': t.price,
